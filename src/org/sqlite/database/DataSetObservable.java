@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.database;
+package org.sqlite.database;
 
 /**
  * A specialization of {@link Observable} for {@link DataSetObserver}

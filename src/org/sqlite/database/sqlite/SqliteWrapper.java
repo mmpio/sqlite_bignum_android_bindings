@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package android.database.sqlite;
+package org.sqlite.database.sqlite;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteException;
+import org.sqlite.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
@@ -46,8 +46,7 @@ public final class SqliteWrapper {
 
     public static void checkSQLiteException(Context context, SQLiteException e) {
         if (isLowMemory(e)) {
-            Toast.makeText(context, com.android.internal.R.string.low_memory,
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "low memory", Toast.LENGTH_SHORT).show();
         } else {
             throw e;
         }

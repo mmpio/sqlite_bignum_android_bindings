@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package android.database.sqlite;
+package org.sqlite.database.sqlite;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.DatabaseErrorHandler;
+import org.sqlite.database.DatabaseErrorHandler;
 import android.database.DatabaseUtils;
-import android.database.DefaultDatabaseErrorHandler;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteDebug.DbStats;
+import org.sqlite.database.DefaultDatabaseErrorHandler;
+import org.sqlite.database.SQLException;
+import org.sqlite.database.sqlite.SQLiteDebug.DbStats;
 import android.os.CancellationSignal;
 import android.os.Looper;
 import android.os.OperationCanceledException;
@@ -854,12 +854,38 @@ public final class SQLiteDatabase extends SQLiteClosable {
     }
 
     /**
+     * Utility method to run the query on the db and return the value in the
+     * first column of the first row.
+     */
+    private static long databaseutils_longForQuery(
+        SQLiteDatabase db, String query, String[] selectionArgs
+    ) {
+        SQLiteStatement prog = db.compileStatement(query);
+        try {
+            return databaseutils_longForQuery(prog, selectionArgs);
+        } finally {
+            prog.close();
+        }
+    }
+
+    /**
+     * Utility method to run the pre-compiled query and return the value in the
+     * first column of the first row.
+     */
+    private static long databaseutils_longForQuery(
+        SQLiteStatement prog, String[] selectionArgs
+    ) {
+        prog.bindAllArgsAsStrings(selectionArgs);
+        return prog.simpleQueryForLong();
+    }
+
+    /**
      * Gets the database version.
      *
      * @return the database version
      */
     public int getVersion() {
-        return ((Long) DatabaseUtils.longForQuery(this, "PRAGMA user_version;", null)).intValue();
+        return ((Long) databaseutils_longForQuery(this, "PRAGMA user_version;", null)).intValue();
     }
 
     /**
@@ -877,7 +903,7 @@ public final class SQLiteDatabase extends SQLiteClosable {
      * @return the new maximum database size
      */
     public long getMaximumSize() {
-        long pageCount = DatabaseUtils.longForQuery(this, "PRAGMA max_page_count;", null);
+        long pageCount = databaseutils_longForQuery(this, "PRAGMA max_page_count;", null);
         return pageCount * getPageSize();
     }
 
@@ -895,7 +921,7 @@ public final class SQLiteDatabase extends SQLiteClosable {
         if ((numBytes % pageSize) != 0) {
             numPages++;
         }
-        long newPageCount = DatabaseUtils.longForQuery(this, "PRAGMA max_page_count = " + numPages,
+        long newPageCount = databaseutils_longForQuery(this, "PRAGMA max_page_count = " + numPages,
                 null);
         return newPageCount * pageSize;
     }
@@ -906,7 +932,7 @@ public final class SQLiteDatabase extends SQLiteClosable {
      * @return the database page size, in bytes
      */
     public long getPageSize() {
-        return DatabaseUtils.longForQuery(this, "PRAGMA page_size;", null);
+        return databaseutils_longForQuery(this, "PRAGMA page_size;", null);
     }
 
     /**

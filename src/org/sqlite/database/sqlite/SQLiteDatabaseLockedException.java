@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.database.sqlite;
+package org.sqlite.database.sqlite;
 
 /**
  * Thrown if  the database engine was unable to acquire the

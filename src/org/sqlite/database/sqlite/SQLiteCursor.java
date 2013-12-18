@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package android.database.sqlite;
+package org.sqlite.database.sqlite;
+
+import org.sqlite.database.ExtraUtils;
 
 import android.database.AbstractWindowedCursor;
 import android.database.CursorWindow;
+
 import android.database.DatabaseUtils;
 import android.os.StrictMode;
 import android.util.Log;
@@ -94,7 +97,7 @@ public class SQLiteCursor extends AbstractWindowedCursor {
         if (query == null) {
             throw new IllegalArgumentException("query object cannot be null");
         }
-        if (StrictMode.vmSqliteObjectLeaksEnabled()) {
+        if (/* StrictMode.vmSqliteObjectLeaksEnabled() */ false ) {
             mStackTrace = new DatabaseObjectNotClosedException().fillInStackTrace();
         } else {
             mStackTrace = null;
@@ -105,7 +108,7 @@ public class SQLiteCursor extends AbstractWindowedCursor {
         mQuery = query;
 
         mColumns = query.getColumnNames();
-        mRowIdColumnIndex = DatabaseUtils.findRowIdColumnIndex(mColumns);
+        mRowIdColumnIndex = ExtraUtils.findRowIdColumnIndex(mColumns);
     }
 
     /**
@@ -136,6 +139,7 @@ public class SQLiteCursor extends AbstractWindowedCursor {
     }
 
     private void fillWindow(int requiredPos) {
+      /*
         clearOrCreateWindow(getDatabase().getPath());
 
         try {
@@ -159,6 +163,7 @@ public class SQLiteCursor extends AbstractWindowedCursor {
             closeWindow();
             throw ex;
         }
+        */
     }
 
     @Override
@@ -260,6 +265,7 @@ public class SQLiteCursor extends AbstractWindowedCursor {
         try {
             // if the cursor hasn't been closed yet, close it first
             if (mWindow != null) {
+                    /*
                 if (mStackTrace != null) {
                     String sql = mQuery.getSql();
                     int len = sql.length();
@@ -270,6 +276,7 @@ public class SQLiteCursor extends AbstractWindowedCursor {
                         ", query = " + sql.substring(0, (len > 1000) ? 1000 : len),
                         mStackTrace);
                 }
+                */
                 close();
             }
         } finally {

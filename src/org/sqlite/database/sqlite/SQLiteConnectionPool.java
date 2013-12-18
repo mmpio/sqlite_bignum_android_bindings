@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package android.database.sqlite;
+package org.sqlite.database.sqlite;
 
 import dalvik.system.CloseGuard;
 
-import android.database.sqlite.SQLiteDebug.DbStats;
+import org.sqlite.database.sqlite.SQLiteDebug.DbStats;
 import android.os.CancellationSignal;
 import android.os.OperationCanceledException;
 import android.os.SystemClock;
 import android.util.Log;
-import android.util.PrefixPrinter;
+/* import android.util.PrefixPrinter; */
 import android.util.Printer;
 
 import java.io.Closeable;
@@ -999,7 +999,8 @@ public final class SQLiteConnectionPool implements Closeable {
      * @param verbose True to dump more verbose information.
      */
     public void dump(Printer printer, boolean verbose) {
-        Printer indentedPrinter = PrefixPrinter.create(printer, "    ");
+      /*
+        Printer indentedPrinter = Printer.create(printer, "    ");
         synchronized (mLock) {
             printer.println("Connection pool for " + mConfiguration.path + ":");
             printer.println("  Open: " + mIsOpen);
@@ -1050,6 +1051,7 @@ public final class SQLiteConnectionPool implements Closeable {
                 indentedPrinter.println("<none>");
             }
         }
+        */
     }
 
     @Override

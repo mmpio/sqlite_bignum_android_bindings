@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.database;
+package org.sqlite.database;
 
 /**
  * An exception that indicates there was an error with SQL parsing or execution.

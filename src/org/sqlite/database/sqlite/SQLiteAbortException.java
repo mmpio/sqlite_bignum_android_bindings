@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.database.sqlite;
+package org.sqlite.database.sqlite;
 
 /**
  * An exception that indicates that the SQLite program was aborted.

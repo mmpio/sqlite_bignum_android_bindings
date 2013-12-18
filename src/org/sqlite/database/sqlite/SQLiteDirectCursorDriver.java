@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package android.database.sqlite;
+package org.sqlite.database.sqlite;
 
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
+import org.sqlite.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.os.CancellationSignal;
 
 /**

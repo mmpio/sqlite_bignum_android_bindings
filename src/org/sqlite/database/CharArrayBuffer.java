@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.database;
+package org.sqlite.database;
 
 /**
  * This is used for {@link Cursor#copyStringToBuffer}

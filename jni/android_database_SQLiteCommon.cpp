@@ -120,7 +120,8 @@ void throw_sqlite3_exception(JNIEnv* env, int errcode,
             break;
     }
 
-    if (sqlite3Message) {
+    if (0 && sqlite3Message) {
+#if 0
         String8 fullMessage;
         fullMessage.append(sqlite3Message);
         fullMessage.appendFormat(" (code %d)", errcode); // print extended error code
@@ -129,6 +130,7 @@ void throw_sqlite3_exception(JNIEnv* env, int errcode,
             fullMessage.append(message);
         }
         jniThrowException(env, exceptionClass, fullMessage.string());
+#endif
     } else {
         jniThrowException(env, exceptionClass, message);
     }

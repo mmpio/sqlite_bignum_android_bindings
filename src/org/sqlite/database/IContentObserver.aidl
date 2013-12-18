@@ -15,7 +15,7 @@
 ** limitations under the License.
 */
 
-package android.database;
+package org.sqlite.database;
 
 import android.net.Uri;
 

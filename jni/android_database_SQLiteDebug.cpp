@@ -82,7 +82,7 @@ int register_android_database_SQLiteDebug(JNIEnv *env)
     GET_FIELD_ID(gSQLiteDebugPagerStatsClassInfo.pageCacheOverflow, clazz,
             "pageCacheOverflow", "I");
 
-    return AndroidRuntime::registerNativeMethods(env, "android/database/sqlite/SQLiteDebug",
+    return jniRegisterNativeMethods(env, "android/database/sqlite/SQLiteDebug",
             gMethods, NELEM(gMethods));
 }
 

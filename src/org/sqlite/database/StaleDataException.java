@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.database;
+package org.sqlite.database;
 
 /**
  * This exception is thrown when a Cursor contains stale data and must be

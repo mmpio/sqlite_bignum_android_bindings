@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.database.sqlite;
+package org.sqlite.database.sqlite;
 
 /**
  * This error can occur if the application creates a SQLiteStatement object and allows multiple

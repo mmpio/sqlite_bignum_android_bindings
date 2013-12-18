@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.database.sqlite;
+package org.sqlite.database.sqlite;
 
 public class SQLiteCantOpenDatabaseException extends SQLiteException {
     public SQLiteCantOpenDatabaseException() {}

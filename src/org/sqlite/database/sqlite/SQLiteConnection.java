@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package android.database.sqlite;
+package org.sqlite.database.sqlite;
 
-import dalvik.system.BlockGuard;
+/* import dalvik.system.BlockGuard; */
 import dalvik.system.CloseGuard;
 
 import android.database.Cursor;
 import android.database.CursorWindow;
 import android.database.DatabaseUtils;
-import android.database.sqlite.SQLiteDebug.DbStats;
+import org.sqlite.database.sqlite.SQLiteDebug.DbStats;
 import android.os.CancellationSignal;
 import android.os.OperationCanceledException;
 import android.os.ParcelFileDescriptor;
@@ -419,7 +419,7 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
         mConfiguration.updateParametersFrom(configuration);
 
         // Update prepared statement cache size.
-        mPreparedStatementCache.resize(configuration.maxSqlCacheSize);
+        /* mPreparedStatementCache.resize(configuration.maxSqlCacheSize); */
 
         // Update foreign key mode.
         if (foreignKeyModeChanged) {
@@ -820,6 +820,7 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
     public int executeForCursorWindow(String sql, Object[] bindArgs,
             CursorWindow window, int startPos, int requiredPos, boolean countAllRows,
             CancellationSignal cancellationSignal) {
+      /*
         if (sql == null) {
             throw new IllegalArgumentException("sql must not be null.");
         }
@@ -871,6 +872,8 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
         } finally {
             window.releaseReference();
         }
+   */
+      return -1;
     }
 
     private PreparedStatement acquirePreparedStatement(String sql) {
@@ -976,6 +979,21 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
         nativeCancel(mConnectionPtr);
     }
 
+    private static int databaseutils_getTypeOfObject(Object obj) {
+        if (obj == null) {
+            return Cursor.FIELD_TYPE_NULL;
+        } else if (obj instanceof byte[]) {
+            return Cursor.FIELD_TYPE_BLOB;
+        } else if (obj instanceof Float || obj instanceof Double) {
+            return Cursor.FIELD_TYPE_FLOAT;
+        } else if (obj instanceof Long || obj instanceof Integer
+                || obj instanceof Short || obj instanceof Byte) {
+            return Cursor.FIELD_TYPE_INTEGER;
+        } else {
+            return Cursor.FIELD_TYPE_STRING;
+        }
+    }
+
     private void bindArguments(PreparedStatement statement, Object[] bindArgs) {
         final int count = bindArgs != null ? bindArgs.length : 0;
         if (count != statement.mNumParameters) {
@@ -990,7 +1008,7 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
         final int statementPtr = statement.mStatementPtr;
         for (int i = 0; i < count; i++) {
             final Object arg = bindArgs[i];
-            switch (DatabaseUtils.getTypeOfObject(arg)) {
+            switch (databaseutils_getTypeOfObject(arg)) {
                 case Cursor.FIELD_TYPE_NULL:
                     nativeBindNull(mConnectionPtr, statementPtr, i + 1);
                     break;
@@ -1036,13 +1054,13 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
     }
 
     private void applyBlockGuardPolicy(PreparedStatement statement) {
-        if (!mConfiguration.isInMemoryDb()) {
-            if (statement.mReadOnly) {
-                BlockGuard.getThreadPolicy().onReadFromDisk();
-            } else {
-                BlockGuard.getThreadPolicy().onWriteToDisk();
-            }
-        }
+/*        if (!mConfiguration.isInMemoryDb()) {*/
+/*            if (statement.mReadOnly) {*/
+/*                BlockGuard.getThreadPolicy().onReadFromDisk();*/
+/*            } else {*/
+/*                BlockGuard.getThreadPolicy().onWriteToDisk();*/
+/*            }*/
+/*        }*/
     }
 
     /**

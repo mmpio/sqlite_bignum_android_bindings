@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package android.database.sqlite;
+package org.sqlite.database.sqlite;
 
 import android.content.Context;
-import android.database.DatabaseErrorHandler;
-import android.database.DefaultDatabaseErrorHandler;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
+import org.sqlite.database.DatabaseErrorHandler;
+import org.sqlite.database.DefaultDatabaseErrorHandler;
+import org.sqlite.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.util.Log;
 
 /**
@@ -221,9 +221,9 @@ public abstract class SQLiteOpenHelper {
                         db = SQLiteDatabase.openDatabase(path, mFactory,
                                 SQLiteDatabase.OPEN_READONLY, mErrorHandler);
                     } else {
-                        db = mContext.openOrCreateDatabase(mName, mEnableWriteAheadLogging ?
-                                Context.MODE_ENABLE_WRITE_AHEAD_LOGGING : 0,
-                                mFactory, mErrorHandler);
+                        db = SQLiteDatabase.openOrCreateDatabase(
+                                mName, mFactory, mErrorHandler
+                        );
                     }
                 } catch (SQLiteException ex) {
                     if (writable) {

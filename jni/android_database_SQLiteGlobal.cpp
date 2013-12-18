@@ -21,7 +21,10 @@
 #include <android_runtime/AndroidRuntime.h>
 
 #include <sqlite3.h>
+#if 0
 #include <sqlite3_android.h>
+#endif
+
 
 #include "android_database_SQLiteCommon.h"
 #include "android_util_Log.h"
@@ -55,7 +58,10 @@ static void sqliteInitialize() {
     sqlite3_config(SQLITE_CONFIG_MULTITHREAD);
 
     // Redirect SQLite log messages to the Android log.
+#if 0
     bool verboseLog = android_util_Log_isVerboseLogEnabled(SQLITE_LOG_TAG);
+#endif
+    bool verboseLog = false;
     sqlite3_config(SQLITE_CONFIG_LOG, &sqliteLogCallback, verboseLog ? (void*)1 : NULL);
 
     // The soft heap limit prevents the page cache allocations from growing
@@ -82,7 +88,7 @@ int register_android_database_SQLiteGlobal(JNIEnv *env)
 {
     sqliteInitialize();
 
-    return AndroidRuntime::registerNativeMethods(env, "android/database/sqlite/SQLiteGlobal",
+    return jniRegisterNativeMethods(env, "android/database/sqlite/SQLiteGlobal",
             sMethods, NELEM(sMethods));
 }
 

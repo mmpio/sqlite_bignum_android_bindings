@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.database.sqlite;
+package org.sqlite.database.sqlite;
 
 import android.os.ParcelFileDescriptor;
 
@@ -35,7 +35,7 @@ public final class SQLiteStatement extends SQLiteProgram {
      * Execute this SQL statement, if it is not a SELECT / INSERT / DELETE / UPDATE, for example
      * CREATE / DROP table, view, trigger, index etc.
      *
-     * @throws android.database.SQLException If the SQL string is invalid for
+     * @throws org.sqlite.database.SQLException If the SQL string is invalid for
      *         some reason
      */
     public void execute() {
@@ -55,7 +55,7 @@ public final class SQLiteStatement extends SQLiteProgram {
      * statement is of any importance to the caller - for example, UPDATE / DELETE SQL statements.
      *
      * @return the number of rows affected by this SQL statement execution.
-     * @throws android.database.SQLException If the SQL string is invalid for
+     * @throws org.sqlite.database.SQLException If the SQL string is invalid for
      *         some reason
      */
     public int executeUpdateDelete() {
@@ -77,7 +77,7 @@ public final class SQLiteStatement extends SQLiteProgram {
      *
      * @return the row ID of the last row inserted, if this insert is successful. -1 otherwise.
      *
-     * @throws android.database.SQLException If the SQL string is invalid for
+     * @throws org.sqlite.database.SQLException If the SQL string is invalid for
      *         some reason
      */
     public long executeInsert() {
@@ -99,7 +99,7 @@ public final class SQLiteStatement extends SQLiteProgram {
      *
      * @return The result of the query.
      *
-     * @throws android.database.sqlite.SQLiteDoneException if the query returns zero rows
+     * @throws org.sqlite.database.sqlite.SQLiteDoneException if the query returns zero rows
      */
     public long simpleQueryForLong() {
         acquireReference();
@@ -120,7 +120,7 @@ public final class SQLiteStatement extends SQLiteProgram {
      *
      * @return The result of the query.
      *
-     * @throws android.database.sqlite.SQLiteDoneException if the query returns zero rows
+     * @throws org.sqlite.database.sqlite.SQLiteDoneException if the query returns zero rows
      */
     public String simpleQueryForString() {
         acquireReference();
@@ -141,7 +141,7 @@ public final class SQLiteStatement extends SQLiteProgram {
      * @return A read-only file descriptor for a copy of the blob value, or {@code null}
      *         if the value is null or could not be read for some reason.
      *
-     * @throws android.database.sqlite.SQLiteDoneException if the query returns zero rows
+     * @throws org.sqlite.database.sqlite.SQLiteDoneException if the query returns zero rows
      */
     public ParcelFileDescriptor simpleQueryForBlobFileDescriptor() {
         acquireReference();

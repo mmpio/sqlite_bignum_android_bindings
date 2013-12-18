@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package android.database;
+package org.sqlite.database;
 
-import android.database.sqlite.SQLiteDatabase;
+import org.sqlite.database.sqlite.SQLiteDatabase;
 
 /**
  * An interface to let the apps define the actions to take when the following errors are detected

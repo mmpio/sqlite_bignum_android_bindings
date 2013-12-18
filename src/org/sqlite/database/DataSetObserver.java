@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.database;
+package org.sqlite.database;
 
 /**
  * Receives call backs when a data set has been changed, or made invalid. The typically data sets
