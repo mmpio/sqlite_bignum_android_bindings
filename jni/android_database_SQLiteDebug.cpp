@@ -18,13 +18,18 @@
 
 #include <jni.h>
 #include <JNIHelp.h>
+
+#define LOG_FATAL_IF(...)
+
+#if 0
 #include <android_runtime/AndroidRuntime.h>
+#include <utils/Log.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <utils/Log.h>
 
 #include <sqlite3.h>
 

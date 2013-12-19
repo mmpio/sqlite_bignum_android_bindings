@@ -18,19 +18,32 @@
 
 #include <jni.h>
 #include <JNIHelp.h>
+
+#define ALOG(...)
+#define ALOGV(...)
+#define ALOGE(...)
+#define ALOGW(...)
+
+
+#if 0
+#include <utils/Log.h>
 #include <android_runtime/AndroidRuntime.h>
 #include <android_runtime/Log.h>
 
-#include <utils/Log.h>
 #include <utils/String8.h>
 #include <utils/String16.h>
+
 #include <cutils/ashmem.h>
+#endif
+
 #include <sys/mman.h>
 
 #include <string.h>
 #include <unistd.h>
 
+#if 0
 #include <androidfw/CursorWindow.h>
+#endif
 
 #include <sqlite3.h>
 #if 0
@@ -270,7 +283,7 @@ error:
 
     if (env->ExceptionCheck()) {
         ALOGE("An exception was thrown by custom SQLite function.");
-        LOGE_EX(env);
+        /* LOGE_EX(env); */
         env->ExceptionClear();
     }
 }
@@ -947,8 +960,6 @@ int register_android_database_SQLiteConnection(JNIEnv *env)
 
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
   JNIEnv *env = 0;
-
-  __android_log_print(ANDROID_LOG_INFO,  __FUNCTION__, "Loaded custom SQLite");
 
   android::gpJavaVM = vm;
   vm->GetEnv((void**)&env, JNI_VERSION_1_4);

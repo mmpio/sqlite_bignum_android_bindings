@@ -16,8 +16,6 @@
 
 #include "android_database_SQLiteCommon.h"
 
-#include <utils/String8.h>
-
 namespace android {
 
 /* throw a SQLiteException with a message appropriate for the error in handle */
@@ -120,17 +118,13 @@ void throw_sqlite3_exception(JNIEnv* env, int errcode,
             break;
     }
 
-    if (0 && sqlite3Message) {
-#if 0
-        String8 fullMessage;
-        fullMessage.append(sqlite3Message);
-        fullMessage.appendFormat(" (code %d)", errcode); // print extended error code
-        if (message) {
-            fullMessage.append(": ");
-            fullMessage.append(message);
-        }
-        jniThrowException(env, exceptionClass, fullMessage.string());
-#endif
+    if (sqlite3Message) {
+        char *zFullmsg = sqlite3_mprintf(
+            "%s (code %d)%s%s", sqlite3Message, errcode, 
+            (message ? ": " : ""), (message ? message : "")
+        );
+        jniThrowException(env, exceptionClass, zFullmsg);
+        sqlite3_free(zFullmsg);
     } else {
         jniThrowException(env, exceptionClass, message);
     }

@@ -18,7 +18,14 @@
 
 #include <jni.h>
 #include <JNIHelp.h>
+
+#define ALOGV(...)
+#define ALOG(...)
+
+#if 0
 #include <android_runtime/AndroidRuntime.h>
+#include "android_util_Log.h"
+#endif
 
 #include <sqlite3.h>
 #if 0
@@ -27,7 +34,6 @@
 
 
 #include "android_database_SQLiteCommon.h"
-#include "android_util_Log.h"
 
 namespace android {
 
