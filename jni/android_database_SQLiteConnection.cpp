@@ -18,26 +18,10 @@
 
 #include <jni.h>
 #include <JNIHelp.h>
+#include "ALog-priv.h"
 
-#define ALOG(...)
-#define ALOGV(...)
-#define ALOGE(...)
-#define ALOGW(...)
-
-
-#if 0
-#include <utils/Log.h>
-#include <android_runtime/AndroidRuntime.h>
-#include <android_runtime/Log.h>
-
-#include <utils/String8.h>
-#include <utils/String16.h>
-
-#include <cutils/ashmem.h>
-#endif
 
 #include <sys/mman.h>
-
 #include <string.h>
 #include <unistd.h>
 

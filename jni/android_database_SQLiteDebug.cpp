@@ -18,13 +18,13 @@
 
 #include <jni.h>
 #include <JNIHelp.h>
+#include <ALog-priv.h>
 
-#define LOG_FATAL_IF(...)
-
-#if 0
-#include <android_runtime/AndroidRuntime.h>
-#include <utils/Log.h>
-#endif
+/*
+** Not quite the same as the core android LOG_FATAL_IF (which also
+** sends a SIGTRAP), but close enough.
+*/
+#define LOG_FATAL_IF(bCond, zErr) if( bCond ) ALOGE(zErr);
 
 #include <stdio.h>
 #include <stdlib.h>
