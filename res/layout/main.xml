@@ -8,20 +8,23 @@
 <TextView
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:text="Hello World, CustomSqlite"
-    />
-<TextView
-    android:id="@+id/tv_widget"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:text="this text should be replaced by the sqlite version"
+    android:text="CustomSqlite Tests"
+    android:typeface="monospace"
     />
 
 <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Find SQLite version"
-        android:onClick="find_version"
+        android:text="Run the tests"
+        android:onClick="run_the_tests"
         />
+
+<TextView
+    android:id="@+id/tv_widget"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:text="&lt;this text should be replaced by the test output&gt;"
+    android:typeface="monospace"
+    />
 </LinearLayout>
 
