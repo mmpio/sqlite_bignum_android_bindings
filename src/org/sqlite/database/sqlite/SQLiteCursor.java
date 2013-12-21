@@ -21,7 +21,6 @@ import org.sqlite.database.ExtraUtils;
 import android.database.AbstractWindowedCursor;
 import android.database.CursorWindow;
 
-import android.database.DatabaseUtils;
 import android.os.StrictMode;
 import android.util.Log;
 
@@ -138,20 +137,38 @@ public class SQLiteCursor extends AbstractWindowedCursor {
         return mCount;
     }
 
+    /* 
+    ** The AbstractWindowClass contains protected methods clearOrCreateWindow() and
+    ** closeWindow(), which are used by the android.database.sqlite.* version of this
+    ** class. But, since they are marked with "@hide", the following replacement 
+    ** versions are required.
+    */
+    private void awc_clearOrCreateWindow(String name){
+      CursorWindow win = getWindow();
+      if( win==null ){
+        win = new CursorWindow(name);
+        setWindow(win);
+      }else{
+        win.clear();
+      }
+    }
+    private void awc_closeWindow(){
+      setWindow(null);
+    }
+
     private void fillWindow(int requiredPos) {
-      /*
-        clearOrCreateWindow(getDatabase().getPath());
+        awc_clearOrCreateWindow(getDatabase().getPath());
 
         try {
             if (mCount == NO_COUNT) {
-                int startPos = DatabaseUtils.cursorPickFillWindowStartPosition(requiredPos, 0);
+                int startPos = ExtraUtils.cursorPickFillWindowStartPosition(requiredPos, 0);
                 mCount = mQuery.fillWindow(mWindow, startPos, requiredPos, true);
                 mCursorWindowCapacity = mWindow.getNumRows();
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "received count(*) from native_fill_window: " + mCount);
                 }
             } else {
-                int startPos = DatabaseUtils.cursorPickFillWindowStartPosition(requiredPos,
+                int startPos = ExtraUtils.cursorPickFillWindowStartPosition(requiredPos,
                         mCursorWindowCapacity);
                 mQuery.fillWindow(mWindow, startPos, requiredPos, false);
             }
@@ -160,10 +177,9 @@ public class SQLiteCursor extends AbstractWindowedCursor {
             // not produce any results.  This helps to avoid accidentally leaking
             // the cursor window if the client does not correctly handle exceptions
             // and fails to close the cursor.
-            closeWindow();
+            awc_closeWindow();
             throw ex;
         }
-        */
     }
 
     @Override

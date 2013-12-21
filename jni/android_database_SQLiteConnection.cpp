@@ -24,6 +24,7 @@
 #include <sys/mman.h>
 #include <string.h>
 #include <unistd.h>
+#include <assert.h>
 
 #if 0
 #include <androidfw/CursorWindow.h>
@@ -606,219 +607,224 @@ static jint nativeExecuteForBlobFileDescriptor(JNIEnv* env, jclass clazz,
     return -1;
 }
 
-enum CopyRowResult {
-    CPR_OK,
-    CPR_FULL,
-    CPR_ERROR,
+/*
+** Note: The following symbols must be in the same order as the corresponding
+** elements in the aMethod[] array in function nativeExecuteForCursorWindow().
+*/
+enum CWMethodNames {
+  CW_CLEAR         = 0,
+  CW_SETNUMCOLUMNS = 1,
+  CW_ALLOCROW      = 2,
+  CW_FREELASTROW   = 3,
+  CW_PUTNULL       = 4,
+  CW_PUTLONG       = 5,
+  CW_PUTDOUBLE     = 6,
+  CW_PUTSTRING     = 7,
+  CW_PUTBLOB       = 8
 };
 
+/*
+** An instance of this structure represents a single CursorWindow java method.
+*/
+struct CWMethod {
+  jmethodID id;                   /* Method id */
+  const char *zName;              /* Method name */
+  const char *zSig;               /* Method JNI signature */
+};
+
+/*
+** Append the contents of the row that SQL statement pStmt currently points to
+** to the CursorWindow object passed as the second argument. The CursorWindow
+** currently contains iRow rows. Return true on success or false if an error
+** occurs.
+*/
+static jboolean copyRowToWindow(
+  JNIEnv *pEnv,
+  jobject win,
+  int iRow,
+  sqlite3_stmt *pStmt,
+  CWMethod *aMethod
+){
+  int nCol = sqlite3_column_count(pStmt);
+  int i;
+  jboolean bOk;
+
+  bOk = pEnv->CallBooleanMethod(win, aMethod[CW_ALLOCROW].id);
+  for(i=0; bOk && i<nCol; i++){
+    switch( sqlite3_column_type(pStmt, i) ){
+      case SQLITE_NULL: {
+        bOk = pEnv->CallBooleanMethod(win, aMethod[CW_PUTNULL].id, iRow, i);
+        break;
+      }
+
+      case SQLITE_INTEGER: {
+        jlong val = sqlite3_column_int64(pStmt, i);
+        bOk = pEnv->CallBooleanMethod(win, aMethod[CW_PUTLONG].id, val, iRow, i);
+        break;
+      }
+
+      case SQLITE_FLOAT: {
+        jdouble val = sqlite3_column_double(pStmt, i);
+        bOk = pEnv->CallBooleanMethod(win, aMethod[CW_PUTDOUBLE].id, val, iRow, i);
+        break;
+      }
+
+      case SQLITE_TEXT: {
+        const char *zVal = (const char*)sqlite3_column_text(pStmt, i);
+        jstring val = pEnv->NewStringUTF(zVal);
+        bOk = pEnv->CallBooleanMethod(win, aMethod[CW_PUTSTRING].id, val, iRow, i);
+        break;
+      }
+
+      default: {
+        assert( sqlite3_column_type(pStmt, i)==SQLITE_BLOB );
+
+        const jbyte *p = (const jbyte*)sqlite3_column_blob(pStmt, i);
+        int n = sqlite3_column_bytes(pStmt, i);
+
+        jbyteArray val = pEnv->NewByteArray(n);
+        pEnv->SetByteArrayRegion(val, 0, n, p);
+        bOk = pEnv->CallBooleanMethod(win, aMethod[CW_PUTBLOB].id, val, iRow, i);
+        break;
+      }
+    }
+
+    if( bOk==0 ){
+      pEnv->CallVoidMethod(win, aMethod[CW_FREELASTROW].id);
+    }
+  }
+
+  return bOk;
+}
+
+static jboolean setWindowNumColumns(
+  JNIEnv *pEnv,
+  jobject win,
+  sqlite3_stmt *pStmt,
+  CWMethod *aMethod
+){
+  int nCol;
+
+  pEnv->CallVoidMethod(win, aMethod[CW_CLEAR].id);
+  nCol = sqlite3_column_count(pStmt);
+  return pEnv->CallBooleanMethod(win, aMethod[CW_SETNUMCOLUMNS].id, (jint)nCol);
+}
+
+/*
+** This method has been rewritten for org.sqlite.database.*. The original 
+** android implementation used the C++ interface to populate a CursorWindow
+** object. Since the NDK does not export this interface, we invoke the Java
+** interface using standard JNI methods to do the same thing.
+**
+** This function executes the SQLite statement object passed as the 4th 
+** argument and copies one or more returned rows into the CursorWindow
+** object passed as the 5th argument. The set of rows copied into the 
+** CursorWindow is always contiguous.
+**
+** The only row that *must* be copied into the CursorWindow is row 
+** iRowRequired. Ideally, all rows from iRowStart through to the end
+** of the query are copied into the CursorWindow. If this is not possible
+** (CursorWindow objects have a finite capacity), some compromise position
+** is found (see comments embedded in the code below for details).
+**
+** The return value is a 64-bit integer calculated as follows:
+**
+**      (iStart << 32) | nRow
+**
+** where iStart is the index of the first row copied into the CursorWindow.
+** If the countAllRows argument is true, nRow is the total number of rows
+** returned by the query. Otherwise, nRow is one greater than the index of 
+** the last row copied into the CursorWindow.
+*/
 static jlong nativeExecuteForCursorWindow(
-  JNIEnv* env, jclass clazz,
-  jint connectionPtr, 
-  jint statementPtr, 
-  jint windowPtr,
-  jint startPos, 
-  jint requiredPos, 
+  JNIEnv *pEnv, 
+  jclass clazz,
+  jint connectionPtr,             /* Pointer to SQLiteConnection C++ object */
+  jint statementPtr,              /* Pointer to sqlite3_stmt object */
+  jobject win,                    /* The CursorWindow object to populate */
+  jint startPos,                  /* First row to add (advisory) */
+  jint iRowRequired,              /* Required row */
   jboolean countAllRows
 ) {
-  jniThrowIOException(env, -1);
-  return -1;
-}
+  SQLiteConnection *pConnection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
+  sqlite3_stmt *pStmt = reinterpret_cast<sqlite3_stmt*>(statementPtr);
 
-#if 0
-static CopyRowResult copyRow(JNIEnv* env, CursorWindow* window,
-        sqlite3_stmt* statement, int numColumns, int startPos, int addedRows) {
-    // Allocate a new field directory for the row.
-    status_t status = window->allocRow();
-    if (status) {
-        LOG_WINDOW("Failed allocating fieldDir at startPos %d row %d, error=%d",
-                startPos, addedRows, status);
-        return CPR_FULL;
+  CWMethod aMethod[] = {
+    {0, "clear",         "()V"},
+    {0, "setNumColumns", "(I)Z"},
+    {0, "allocRow",      "()Z"},
+    {0, "freeLastRow",   "()V"},
+    {0, "putNull",       "(II)Z"},
+    {0, "putLong",       "(JII)Z"},
+    {0, "putDouble",     "(DII)Z"},
+    {0, "putString",     "(Ljava/lang/String;II)Z"},
+    {0, "putBlob",       "([BII)Z"},
+  };
+  jclass cls;                     /* Class android.database.CursorWindow */
+  int i;                          /* Iterator variable */
+  int nCol;                       /* Number of columns returned by pStmt */
+  int nRow;
+  jboolean bOk;
+  int iStart;                     /* First row copied to CursorWindow */
+
+  /* Locate all required CursorWindow methods. */
+  cls = pEnv->FindClass("android/database/CursorWindow");
+  for(i=0; i<(sizeof(aMethod)/sizeof(struct CWMethod)); i++){
+    aMethod[i].id = pEnv->GetMethodID(cls, aMethod[i].zName, aMethod[i].zSig);
+    if( aMethod[i].id==NULL ){
+      jniThrowExceptionFmt(pEnv, "java/lang/Exception", 
+          "Failed to find method CursorWindow.%s()", aMethod[i].zName
+      );
+      return 0;
     }
+  }
 
-    // Pack the row into the window.
-    CopyRowResult result = CPR_OK;
-    for (int i = 0; i < numColumns; i++) {
-        int type = sqlite3_column_type(statement, i);
-        if (type == SQLITE_TEXT) {
-            // TEXT data
-            const char* text = reinterpret_cast<const char*>(
-                    sqlite3_column_text(statement, i));
-            // SQLite does not include the NULL terminator in size, but does
-            // ensure all strings are NULL terminated, so increase size by
-            // one to make sure we store the terminator.
-            size_t sizeIncludingNull = sqlite3_column_bytes(statement, i) + 1;
-            status = window->putString(addedRows, i, text, sizeIncludingNull);
-            if (status) {
-                LOG_WINDOW("Failed allocating %u bytes for text at %d,%d, error=%d",
-                        sizeIncludingNull, startPos + addedRows, i, status);
-                result = CPR_FULL;
-                break;
-            }
-            LOG_WINDOW("%d,%d is TEXT with %u bytes",
-                    startPos + addedRows, i, sizeIncludingNull);
-        } else if (type == SQLITE_INTEGER) {
-            // INTEGER data
-            int64_t value = sqlite3_column_int64(statement, i);
-            status = window->putLong(addedRows, i, value);
-            if (status) {
-                LOG_WINDOW("Failed allocating space for a long in column %d, error=%d",
-                        i, status);
-                result = CPR_FULL;
-                break;
-            }
-            LOG_WINDOW("%d,%d is INTEGER 0x%016llx", startPos + addedRows, i, value);
-        } else if (type == SQLITE_FLOAT) {
-            // FLOAT data
-            double value = sqlite3_column_double(statement, i);
-            status = window->putDouble(addedRows, i, value);
-            if (status) {
-                LOG_WINDOW("Failed allocating space for a double in column %d, error=%d",
-                        i, status);
-                result = CPR_FULL;
-                break;
-            }
-            LOG_WINDOW("%d,%d is FLOAT %lf", startPos + addedRows, i, value);
-        } else if (type == SQLITE_BLOB) {
-            // BLOB data
-            const void* blob = sqlite3_column_blob(statement, i);
-            size_t size = sqlite3_column_bytes(statement, i);
-            status = window->putBlob(addedRows, i, blob, size);
-            if (status) {
-                LOG_WINDOW("Failed allocating %u bytes for blob at %d,%d, error=%d",
-                        size, startPos + addedRows, i, status);
-                result = CPR_FULL;
-                break;
-            }
-            LOG_WINDOW("%d,%d is Blob with %u bytes",
-                    startPos + addedRows, i, size);
-        } else if (type == SQLITE_NULL) {
-            // NULL field
-            status = window->putNull(addedRows, i);
-            if (status) {
-                LOG_WINDOW("Failed allocating space for a null in column %d, error=%d",
-                        i, status);
-                result = CPR_FULL;
-                break;
-            }
 
-            LOG_WINDOW("%d,%d is NULL", startPos + addedRows, i);
-        } else {
-            // Unknown data
-            ALOGE("Unknown column type when filling database window");
-            throw_sqlite3_exception(env, "Unknown column type when filling window");
-            result = CPR_ERROR;
-            break;
+  /* Set the number of columns in the window */
+  bOk = setWindowNumColumns(pEnv, win, pStmt, aMethod);
+  if( bOk==0 ) return 0;
+
+  nRow = 0;
+  iStart = startPos;
+  while( sqlite3_step(pStmt)==SQLITE_ROW ){
+    /* Only copy in rows that occur at or after row index iStart. */
+    if( nRow>=iStart && bOk ){
+      bOk = copyRowToWindow(pEnv, win, (nRow - iStart), pStmt, aMethod);
+      if( bOk==0 ){
+        /* The CursorWindow object ran out of memory. If row iRowRequired was
+        ** not successfully added before this happened, clear the CursorWindow
+        ** and try to add the current row again.  */
+        if( nRow<=iRowRequired ){
+          bOk = setWindowNumColumns(pEnv, win, pStmt, aMethod);
+          if( bOk==0 ){
+            sqlite3_reset(pStmt);
+            return 0;
+          }
+          iStart = nRow;
+          bOk = copyRowToWindow(pEnv, win, (nRow - iStart), pStmt, aMethod);
         }
+
+        /* If the CursorWindow is still full and the countAllRows flag is not
+        ** set, break out of the loop here. If countAllRows is set, continue
+        ** so as to set variable nRow correctly.  */
+        if( bOk==0 && countAllRows==0 ) break;
+      }
     }
 
-    // Free the last row if if was not successfully copied.
-    if (result != CPR_OK) {
-        window->freeLastRow();
-    }
-    return result;
+    nRow++;
+  }
+
+  /* Finalize the statement. If this indicates an error occurred, throw an
+  ** SQLiteException exception.  */
+  int rc = sqlite3_reset(pStmt);
+  if( rc!=SQLITE_OK ){
+    throw_sqlite3_exception(pEnv, sqlite3_db_handle(pStmt));
+    return 0;
+  }
+
+  jlong lRet = jlong(iStart) << 32 | jlong(nRow);
+  return lRet;
 }
-
-static jlong nativeExecuteForCursorWindow(JNIEnv* env, jclass clazz,
-        jint connectionPtr, jint statementPtr, jint windowPtr,
-        jint startPos, jint requiredPos, jboolean countAllRows) {
-    SQLiteConnection* connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
-    sqlite3_stmt* statement = reinterpret_cast<sqlite3_stmt*>(statementPtr);
-    CursorWindow* window = reinterpret_cast<CursorWindow*>(windowPtr);
-
-    status_t status = window->clear();
-    if (status) {
-        char *zMsg = sqlite3_mprintf(
-            "Failed to clear the cursor window, status=%d", status
-        );
-        throw_sqlite3_exception(env, connection->db, zMsg);
-        sqlite3_free(zMsg);
-        return 0;
-    }
-
-    int numColumns = sqlite3_column_count(statement);
-    status = window->setNumColumns(numColumns);
-    if (status) {
-        char *zMsg = sqlite3_mprintf(
-            "Failed to set the cursor window column count to %d, status=%d",
-            numColumns, status
-        );
-        throw_sqlite3_exception(env, connection->db, zMsg);
-        sqlite3_free(zMsg);
-        return 0;
-    }
-
-    int retryCount = 0;
-    int totalRows = 0;
-    int addedRows = 0;
-    bool windowFull = false;
-    bool gotException = false;
-    while (!gotException && (!windowFull || countAllRows)) {
-        int err = sqlite3_step(statement);
-        if (err == SQLITE_ROW) {
-            LOG_WINDOW("Stepped statement %p to row %d", statement, totalRows);
-            retryCount = 0;
-            totalRows += 1;
-
-            // Skip the row if the window is full or we haven't reached the start position yet.
-            if (startPos >= totalRows || windowFull) {
-                continue;
-            }
-
-            CopyRowResult cpr = copyRow(env, window, statement, numColumns, startPos, addedRows);
-            if (cpr == CPR_FULL && addedRows && startPos + addedRows <= requiredPos) {
-                // We filled the window before we got to the one row that we really wanted.
-                // Clear the window and start filling it again from here.
-                // TODO: Would be nicer if we could progressively replace earlier rows.
-                window->clear();
-                window->setNumColumns(numColumns);
-                startPos += addedRows;
-                addedRows = 0;
-                cpr = copyRow(env, window, statement, numColumns, startPos, addedRows);
-            }
-
-            if (cpr == CPR_OK) {
-                addedRows += 1;
-            } else if (cpr == CPR_FULL) {
-                windowFull = true;
-            } else {
-                gotException = true;
-            }
-        } else if (err == SQLITE_DONE) {
-            // All rows processed, bail
-            LOG_WINDOW("Processed all rows");
-            break;
-        } else if (err == SQLITE_LOCKED || err == SQLITE_BUSY) {
-            // The table is locked, retry
-            LOG_WINDOW("Database locked, retrying");
-            if (retryCount > 50) {
-                ALOGE("Bailing on database busy retry");
-                throw_sqlite3_exception(env, connection->db, "retrycount exceeded");
-                gotException = true;
-            } else {
-                // Sleep to give the thread holding the lock a chance to finish
-                usleep(1000);
-                retryCount++;
-            }
-        } else {
-            throw_sqlite3_exception(env, connection->db);
-            gotException = true;
-        }
-    }
-
-    LOG_WINDOW("Resetting statement %p after fetching %d rows and adding %d rows"
-            "to the window in %d bytes",
-            statement, totalRows, addedRows, window->size() - window->freeSpace());
-    sqlite3_reset(statement);
-
-    // Report the total number of rows on request.
-    if (startPos > totalRows) {
-        ALOGE("startPos %d > actual rows %d", startPos, totalRows);
-    }
-    jlong result = jlong(startPos) << 32 | jlong(totalRows);
-    return result;
-}
-#endif
 
 static jint nativeGetDbLookaside(JNIEnv* env, jobject clazz, jint connectionPtr) {
     SQLiteConnection* connection = reinterpret_cast<SQLiteConnection*>(connectionPtr);
@@ -895,7 +901,7 @@ static JNINativeMethod sMethods[] =
             (void*)nativeExecuteForChangedRowCount },
     { "nativeExecuteForLastInsertedRowId", "(II)J",
             (void*)nativeExecuteForLastInsertedRowId },
-    { "nativeExecuteForCursorWindow", "(IIIIIZ)J",
+    { "nativeExecuteForCursorWindow", "(IILandroid/database/CursorWindow;IIZ)J",
             (void*)nativeExecuteForCursorWindow },
     { "nativeGetDbLookaside", "(I)I",
             (void*)nativeGetDbLookaside },

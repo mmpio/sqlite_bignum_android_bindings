@@ -43,6 +43,10 @@ public class CustomSqlite extends Activity
     myTV.append("SQLite version " + res + "\n\n");
   }
 
+  public void test_warning(String name, String warning){
+    myTV.append("WARNING:" + name + ": " + warning + "\n");
+  }
+
   public void test_result(String name, String res, String expected){
     myTV.append(name + "... ");
     myNTest++;
@@ -74,6 +78,8 @@ public class CustomSqlite extends Activity
         String x = c.getString(0);
         res = res + "." + x;
       }
+    }else{
+      test_warning("csr_test_1", "c==NULL");
     }
 
     test_result("csr_test_1", res, ".one.two.three");
@@ -92,7 +98,8 @@ public class CustomSqlite extends Activity
 
       myTV.append("\n" + myNErr + " errors from " + myNTest + " tests\n");
     } catch(Exception e) {
-      myTV.append("Exception: " + e.toString());
+      myTV.append("Exception: " + e.toString() + "\n");
+      myTV.append(android.util.Log.getStackTraceString(e) + "\n");
     }
   }
 }

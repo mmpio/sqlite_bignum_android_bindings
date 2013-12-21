@@ -151,7 +151,7 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
     private static native long nativeExecuteForLastInsertedRowId(
             int connectionPtr, int statementPtr);
     private static native long nativeExecuteForCursorWindow(
-            int connectionPtr, int statementPtr, int windowPtr,
+            int connectionPtr, int statementPtr, CursorWindow win,
             int startPos, int requiredPos, boolean countAllRows);
     private static native int nativeGetDbLookaside(int connectionPtr);
     private static native void nativeCancel(int connectionPtr);
@@ -820,7 +820,6 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
     public int executeForCursorWindow(String sql, Object[] bindArgs,
             CursorWindow window, int startPos, int requiredPos, boolean countAllRows,
             CancellationSignal cancellationSignal) {
-      /*
         if (sql == null) {
             throw new IllegalArgumentException("sql must not be null.");
         }
@@ -844,7 +843,7 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
                     attachCancellationSignal(cancellationSignal);
                     try {
                         final long result = nativeExecuteForCursorWindow(
-                                mConnectionPtr, statement.mStatementPtr, window.mWindowPtr,
+                                mConnectionPtr, statement.mStatementPtr, window,
                                 startPos, requiredPos, countAllRows);
                         actualPos = (int)(result >> 32);
                         countedRows = (int)result;
@@ -872,8 +871,6 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
         } finally {
             window.releaseReference();
         }
-   */
-      return -1;
     }
 
     private PreparedStatement acquirePreparedStatement(String sql) {
