@@ -63,4 +63,10 @@
 #define ALOGE(...) ((void)ALOG(LOG_ERROR, LOG_TAG, __VA_ARGS__))
 #endif
 
+/*
+** Not quite the same as the core android LOG_FATAL_IF (which also
+** sends a SIGTRAP), but close enough.
+*/
+#define LOG_FATAL_IF(bCond, zErr) if( bCond ) ALOGE(zErr);
+
 #endif

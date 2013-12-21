@@ -20,12 +20,6 @@
 #include <JNIHelp.h>
 #include <ALog-priv.h>
 
-/*
-** Not quite the same as the core android LOG_FATAL_IF (which also
-** sends a SIGTRAP), but close enough.
-*/
-#define LOG_FATAL_IF(bCond, zErr) if( bCond ) ALOGE(zErr);
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

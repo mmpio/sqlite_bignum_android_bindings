@@ -925,7 +925,6 @@ static JNINativeMethod sMethods[] =
 
 int register_android_database_SQLiteConnection(JNIEnv *env)
 {
-#if 0
     jclass clazz;
     FIND_CLASS(clazz, "android/database/sqlite/SQLiteCustomFunction");
 
@@ -939,7 +938,6 @@ int register_android_database_SQLiteConnection(JNIEnv *env)
     FIND_CLASS(clazz, "java/lang/String");
     gStringClassInfo.clazz = jclass(env->NewGlobalRef(clazz));
 
-#endif
     return jniRegisterNativeMethods(env, 
         "org/sqlite/database/sqlite/SQLiteConnection",
         sMethods, NELEM(sMethods)
