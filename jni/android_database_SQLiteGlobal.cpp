@@ -88,7 +88,7 @@ int register_android_database_SQLiteGlobal(JNIEnv *env)
 {
     sqliteInitialize();
 
-    return jniRegisterNativeMethods(env, "android/database/sqlite/SQLiteGlobal",
+    return jniRegisterNativeMethods(env, "org/sqlite/database/sqlite/SQLiteGlobal",
             sMethods, NELEM(sMethods));
 }
 

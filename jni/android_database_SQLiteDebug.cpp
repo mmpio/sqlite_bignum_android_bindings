@@ -57,7 +57,7 @@ static void nativeGetPagerStats(JNIEnv *env, jobject clazz, jobject statsObj)
 
 static JNINativeMethod gMethods[] =
 {
-    { "nativeGetPagerStats", "(Landroid/database/sqlite/SQLiteDebug$PagerStats;)V",
+    { "nativeGetPagerStats", "(Lorg/sqlite/database/sqlite/SQLiteDebug$PagerStats;)V",
             (void*) nativeGetPagerStats },
 };
 
@@ -72,7 +72,7 @@ static JNINativeMethod gMethods[] =
 int register_android_database_SQLiteDebug(JNIEnv *env)
 {
     jclass clazz;
-    FIND_CLASS(clazz, "android/database/sqlite/SQLiteDebug$PagerStats");
+    FIND_CLASS(clazz, "org/sqlite/database/sqlite/SQLiteDebug$PagerStats");
 
     GET_FIELD_ID(gSQLiteDebugPagerStatsClassInfo.memoryUsed, clazz,
             "memoryUsed", "I");
@@ -81,7 +81,7 @@ int register_android_database_SQLiteDebug(JNIEnv *env)
     GET_FIELD_ID(gSQLiteDebugPagerStatsClassInfo.pageCacheOverflow, clazz,
             "pageCacheOverflow", "I");
 
-    return jniRegisterNativeMethods(env, "android/database/sqlite/SQLiteDebug",
+    return jniRegisterNativeMethods(env, "org/sqlite/database/sqlite/SQLiteDebug",
             gMethods, NELEM(gMethods));
 }
 

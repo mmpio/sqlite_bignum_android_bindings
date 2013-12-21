@@ -926,7 +926,7 @@ static JNINativeMethod sMethods[] =
 int register_android_database_SQLiteConnection(JNIEnv *env)
 {
     jclass clazz;
-    FIND_CLASS(clazz, "android/database/sqlite/SQLiteCustomFunction");
+    FIND_CLASS(clazz, "org/sqlite/database/sqlite/SQLiteCustomFunction");
 
     GET_FIELD_ID(gSQLiteCustomFunctionClassInfo.name, clazz,
             "name", "Ljava/lang/String;");
@@ -944,6 +944,9 @@ int register_android_database_SQLiteConnection(JNIEnv *env)
     );
 }
 
+extern int register_android_database_SQLiteGlobal(JNIEnv *env);
+extern int register_android_database_SQLiteDebug(JNIEnv *env);
+
 } // namespace android
 
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
@@ -951,7 +954,10 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
 
   android::gpJavaVM = vm;
   vm->GetEnv((void**)&env, JNI_VERSION_1_4);
+
   android::register_android_database_SQLiteConnection(env);
+  android::register_android_database_SQLiteDebug(env);
+  android::register_android_database_SQLiteGlobal(env);
 
   return JNI_VERSION_1_4;
 }
