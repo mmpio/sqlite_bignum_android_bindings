@@ -112,4 +112,61 @@ public class ExtraUtils {
             int cursorPosition, int cursorWindowCapacity) {
         return Math.max(cursorPosition - cursorWindowCapacity / 3, 0);
     }
+
+    /**
+     * Returns data type of the given object's value.
+     *<p>
+     * Returned values are
+     * <ul>
+     *   <li>{@link Cursor#FIELD_TYPE_NULL}</li>
+     *   <li>{@link Cursor#FIELD_TYPE_INTEGER}</li>
+     *   <li>{@link Cursor#FIELD_TYPE_FLOAT}</li>
+     *   <li>{@link Cursor#FIELD_TYPE_STRING}</li>
+     *   <li>{@link Cursor#FIELD_TYPE_BLOB}</li>
+     *</ul>
+     *</p>
+     *
+     * @param obj the object whose value type is to be returned
+     * @return object value type
+     */
+    public static int getTypeOfObject(Object obj) {
+        if (obj == null) {
+            return Cursor.FIELD_TYPE_NULL;
+        } else if (obj instanceof byte[]) {
+            return Cursor.FIELD_TYPE_BLOB;
+        } else if (obj instanceof Float || obj instanceof Double) {
+            return Cursor.FIELD_TYPE_FLOAT;
+        } else if (obj instanceof Long || obj instanceof Integer
+                || obj instanceof Short || obj instanceof Byte) {
+            return Cursor.FIELD_TYPE_INTEGER;
+        } else {
+            return Cursor.FIELD_TYPE_STRING;
+        }
+    }
+
+    /**
+     * Utility method to run the query on the db and return the value in the
+     * first column of the first row.
+     */
+    public static long longForQuery(
+        SQLiteDatabase db, String query, String[] selectionArgs
+    ) {
+        SQLiteStatement prog = db.compileStatement(query);
+        try {
+            return longForQuery(prog, selectionArgs);
+        } finally {
+            prog.close();
+        }
+    }
+
+    /**
+     * Utility method to run the pre-compiled query and return the value in the
+     * first column of the first row.
+     */
+    public static long longForQuery(
+        SQLiteStatement prog, String[] selectionArgs
+    ) {
+        prog.bindAllArgsAsStrings(selectionArgs);
+        return prog.simpleQueryForLong();
+    }
 }

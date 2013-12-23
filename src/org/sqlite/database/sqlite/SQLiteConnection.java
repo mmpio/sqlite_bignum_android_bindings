@@ -22,6 +22,7 @@ import dalvik.system.CloseGuard;
 import android.database.Cursor;
 import android.database.CursorWindow;
 import android.database.DatabaseUtils;
+import org.sqlite.database.ExtraUtils;
 import org.sqlite.database.sqlite.SQLiteDebug.DbStats;
 import android.os.CancellationSignal;
 import android.os.OperationCanceledException;
@@ -419,7 +420,7 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
         mConfiguration.updateParametersFrom(configuration);
 
         // Update prepared statement cache size.
-        /* mPreparedStatementCache.resize(configuration.maxSqlCacheSize); */
+        mPreparedStatementCache.resize(configuration.maxSqlCacheSize);
 
         // Update foreign key mode.
         if (foreignKeyModeChanged) {
@@ -976,21 +977,6 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
         nativeCancel(mConnectionPtr);
     }
 
-    private static int databaseutils_getTypeOfObject(Object obj) {
-        if (obj == null) {
-            return Cursor.FIELD_TYPE_NULL;
-        } else if (obj instanceof byte[]) {
-            return Cursor.FIELD_TYPE_BLOB;
-        } else if (obj instanceof Float || obj instanceof Double) {
-            return Cursor.FIELD_TYPE_FLOAT;
-        } else if (obj instanceof Long || obj instanceof Integer
-                || obj instanceof Short || obj instanceof Byte) {
-            return Cursor.FIELD_TYPE_INTEGER;
-        } else {
-            return Cursor.FIELD_TYPE_STRING;
-        }
-    }
-
     private void bindArguments(PreparedStatement statement, Object[] bindArgs) {
         final int count = bindArgs != null ? bindArgs.length : 0;
         if (count != statement.mNumParameters) {
@@ -1005,7 +991,7 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
         final int statementPtr = statement.mStatementPtr;
         for (int i = 0; i < count; i++) {
             final Object arg = bindArgs[i];
-            switch (databaseutils_getTypeOfObject(arg)) {
+            switch (ExtraUtils.getTypeOfObject(arg)) {
                 case Cursor.FIELD_TYPE_NULL:
                     nativeBindNull(mConnectionPtr, statementPtr, i + 1);
                     break;
