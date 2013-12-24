@@ -26,9 +26,9 @@ LOCAL_SRC_FILES:=                             \
 # For a SEE build, add the SEE sources to the tree and uncomment the first
 # two of the following three lines.
 #
-LOCAL_SRC_FILES += sqlite3-see.c
-LOCAL_CFLAGS    += -DSQLITE_HAS_CODEC
-# LOCAL_SRC_FILES += sqlite3.c
+#    LOCAL_SRC_FILES += sqlite3-see.c
+#    LOCAL_CFLAGS    += -DSQLITE_HAS_CODEC
+LOCAL_SRC_FILES += sqlite3.c
 
 LOCAL_C_INCLUDES += nativehelper/
 

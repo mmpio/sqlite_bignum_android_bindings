@@ -8,11 +8,14 @@ import android.view.View;
 import android.widget.TextView;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.util.Arrays;
 
 import java.lang.InterruptedException;
 
 import org.sqlite.database.sqlite.SQLiteDatabase;
 import org.sqlite.database.sqlite.SQLiteStatement;
+import org.sqlite.database.sqlite.SQLiteDatabaseCorruptException;
 
 import android.database.Cursor;
 
@@ -20,6 +23,14 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 */
+
+import org.sqlite.database.DatabaseErrorHandler;
+class DoNotDeleteErrorHandler implements DatabaseErrorHandler {
+  private static final String TAG = "DoNotDeleteErrorHandler";
+  public void onCorruption(SQLiteDatabase dbObj) {
+    Log.e(TAG, "Corruption reported by sqlite on database: " + dbObj.getPath());
+  }
+}
 
 public class CustomSqlite extends Activity
 {
@@ -68,6 +79,27 @@ public class CustomSqlite extends Activity
   }
 
   /*
+  ** Test if the database at DB_PATH is encrypted or not. The db
+  ** is assumed to be encrypted if the first 6 bytes are anything
+  ** other than "SQLite".
+  **
+  ** If the test reveals that the db is encrypted, return the string
+  ** "encrypted". Otherwise, "unencrypted".
+  */
+  public String db_is_encrypted() throws Exception {
+    FileInputStream in = new FileInputStream(DB_PATH);
+
+    byte[] buffer = new byte[6];
+    in.read(buffer, 0, 6);
+
+    String res = "encrypted";
+    if( Arrays.equals(buffer, (new String("SQLite")).getBytes()) ){
+      res = "unencrypted";
+    }
+    return res;
+  }
+
+  /*
   ** Test that a database connection may be accessed from a second thread.
   */
   public void thread_test_1(){
@@ -97,7 +129,7 @@ public class CustomSqlite extends Activity
   /*
   ** Use a Cursor to loop through the results of a SELECT query.
   */
-  public void csr_test_1(){
+  public void csr_test_1() throws Exception {
     SQLiteDatabase.deleteDatabase(DB_PATH);
     SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(DB_PATH, null);
     String res = "";
@@ -115,14 +147,31 @@ public class CustomSqlite extends Activity
     }else{
       test_warning("csr_test_1", "c==NULL");
     }
+    test_result("csr_test_1.1", res, ".one.two.three");
 
-    test_result("csr_test_1", res, ".one.two.three");
+    db.close();
+    test_result("csr_test_1.2", db_is_encrypted(), "unencrypted");
+  }
+
+  public String string_from_t1_x(SQLiteDatabase db){
+    String res = "";
+
+    Cursor c = db.rawQuery("SELECT x FROM t1", null);
+    boolean bRes;
+    for(bRes=c.moveToFirst(); bRes; bRes=c.moveToNext()){
+      String x = c.getString(0);
+      res = res + "." + x;
+    }
+
+    return res;
   }
 
   /*
   ** Check that using openSeeDatabase() creates encrypted databases. 
   */
-  public void see_test_1(){
+  public void see_test_1() throws Exception {
+    if( !SQLiteDatabase.hasCodec() ) return;
+
     SQLiteDatabase.deleteDatabase(DB_PATH);
     String res = "";
     
@@ -132,18 +181,44 @@ public class CustomSqlite extends Activity
     db.execSQL("CREATE TABLE t1(x)");
     db.execSQL("INSERT INTO t1 VALUES ('one'), ('two'), ('three')");
     
-    Cursor c = db.rawQuery("SELECT x FROM t1", null);
-    if( c!=null ){
-      boolean bRes;
-      for(bRes=c.moveToFirst(); bRes; bRes=c.moveToNext()){
-        String x = c.getString(0);
-        res = res + "." + x;
-      }
-    }else{
-      test_warning("see_test_1", "c==NULL");
-    }
+    res = string_from_t1_x(db);
+    test_result("see_test_1.1", res, ".one.two.three");
+    db.close();
 
-    test_result("see_test_1", res, ".one.two.three");
+    test_result("see_test_1.2", db_is_encrypted(), "encrypted");
+
+    db = SQLiteDatabase.openOrCreateDatabase(DB_PATH.getPath(), null, new DoNotDeleteErrorHandler());
+    db.execSQL("PRAGMA key = 'secretkey'");
+    res = string_from_t1_x(db);
+    test_result("see_test_1.3", res, ".one.two.three");
+    db.close();
+
+    res = "unencrypted";
+    try {
+      db = SQLiteDatabase.openOrCreateDatabase(
+	  DB_PATH.getPath(), null, new DoNotDeleteErrorHandler()
+      );
+      string_from_t1_x(db);
+    } catch ( SQLiteDatabaseCorruptException e ){
+      res = "encrypted";
+    } finally {
+      db.close();
+    }
+    test_result("see_test_1.4", res, "encrypted");
+
+    res = "unencrypted";
+    try {
+      db = SQLiteDatabase.openOrCreateDatabase(
+	  DB_PATH.getPath(), null, new DoNotDeleteErrorHandler()
+      );
+      db.execSQL("PRAGMA key = 'otherkey'");
+      string_from_t1_x(db);
+    } catch ( SQLiteDatabaseCorruptException e ){
+      res = "encrypted";
+    } finally {
+      db.close();
+    }
+    test_result("see_test_1.5", res, "encrypted");
   }
 
   public void run_the_tests(View view){
