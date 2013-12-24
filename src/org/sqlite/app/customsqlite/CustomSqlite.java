@@ -16,8 +16,10 @@ import java.lang.InterruptedException;
 import org.sqlite.database.sqlite.SQLiteDatabase;
 import org.sqlite.database.sqlite.SQLiteStatement;
 import org.sqlite.database.sqlite.SQLiteDatabaseCorruptException;
+import org.sqlite.database.sqlite.SQLiteOpenHelper;
 
 import android.database.Cursor;
+import android.content.Context;
 
 /*
 import android.database.sqlite.SQLiteDatabase;
@@ -167,7 +169,7 @@ public class CustomSqlite extends Activity
   }
 
   /*
-  ** Check that using openSeeDatabase() creates encrypted databases. 
+  ** If this is a SEE build, check that encrypted databases work.
   */
   public void see_test_1() throws Exception {
     if( !SQLiteDatabase.hasCodec() ) return;
@@ -187,7 +189,7 @@ public class CustomSqlite extends Activity
 
     test_result("see_test_1.2", db_is_encrypted(), "encrypted");
 
-    db = SQLiteDatabase.openOrCreateDatabase(DB_PATH.getPath(), null, new DoNotDeleteErrorHandler());
+    db = SQLiteDatabase.openOrCreateDatabase(DB_PATH, null);
     db.execSQL("PRAGMA key = 'secretkey'");
     res = string_from_t1_x(db);
     test_result("see_test_1.3", res, ".one.two.three");
@@ -221,6 +223,47 @@ public class CustomSqlite extends Activity
     test_result("see_test_1.5", res, "encrypted");
   }
 
+  class MyHelper extends SQLiteOpenHelper {
+    public MyHelper(Context ctx){
+      super(ctx, DB_PATH.getPath(), null, 1);
+    }
+    public void onConfigure(SQLiteDatabase db){
+      db.execSQL("PRAGMA key = 'secret'");
+    }
+    public void onCreate(SQLiteDatabase db){
+      db.execSQL("CREATE TABLE t1(x)");
+    }
+    public void onUpgrade(SQLiteDatabase db, int iOld, int iNew){
+    }
+  } 
+
+  /*
+  ** If this is a SEE build, check that SQLiteOpenHelper still works.
+  */
+  public void see_test_2() throws Exception {
+    if( !SQLiteDatabase.hasCodec() ) return;
+    SQLiteDatabase.deleteDatabase(DB_PATH);
+
+    MyHelper helper = new MyHelper(this);
+    SQLiteDatabase db = helper.getWritableDatabase();
+    db.execSQL("INSERT INTO t1 VALUES ('x'), ('y'), ('z')");
+
+    String res = string_from_t1_x(db);
+    test_result("see_test_2.1", res, ".x.y.z");
+    test_result("see_test_2.2", db_is_encrypted(), "encrypted");
+
+    helper.close();
+    helper = new MyHelper(this);
+    db = helper.getReadableDatabase();
+    test_result("see_test_2.3", res, ".x.y.z");
+
+    db = helper.getWritableDatabase();
+    test_result("see_test_2.4", res, ".x.y.z");
+
+    test_result("see_test_2.5", db_is_encrypted(), "encrypted");
+  }
+
+
   public void run_the_tests(View view){
     System.loadLibrary("sqliteX");
     DB_PATH = getApplicationContext().getDatabasePath("test.db");
@@ -235,6 +278,7 @@ public class CustomSqlite extends Activity
       csr_test_1();
       thread_test_1();
       see_test_1();
+      see_test_2();
 
       myTV.append("\n" + myNErr + " errors from " + myNTest + " tests\n");
     } catch(Exception e) {
