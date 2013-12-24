@@ -992,6 +992,17 @@ public final class SQLiteConnectionPool implements Closeable {
         mConnectionWaiterPool = waiter;
     }
 
+    public void enableLocalizedCollators() {
+      synchronized (mLock) {
+	if( !mAcquiredConnections.isEmpty() || mAvailablePrimaryConnection==null ) {
+	  throw new IllegalStateException(
+	      "Cannot enable localized collators while database is in use"
+	  );
+	}
+	mAvailablePrimaryConnection.enableLocalizedCollators();
+      }
+    }
+
     /**
      * Dumps debugging information about this connection pool.
      *

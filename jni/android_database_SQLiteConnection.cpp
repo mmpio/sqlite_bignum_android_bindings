@@ -853,6 +853,14 @@ static void nativeResetCancel(JNIEnv* env, jobject clazz, jint connectionPtr,
     }
 }
 
+static jboolean nativeHasCodec(JNIEnv* env, jobject clazz){
+#ifdef SQLITE_HAS_CODEC
+  return true;
+#else
+  return false;
+#endif
+}
+
 
 static JNINativeMethod sMethods[] =
 {
@@ -909,6 +917,8 @@ static JNINativeMethod sMethods[] =
             (void*)nativeCancel },
     { "nativeResetCancel", "(IZ)V",
             (void*)nativeResetCancel },
+
+    { "nativeHasCodec", "()Z", (void*)nativeHasCodec },
 };
 
 #define FIND_CLASS(var, className) \

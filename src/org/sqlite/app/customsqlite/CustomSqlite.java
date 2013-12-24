@@ -7,6 +7,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import java.io.File;
+
+import java.lang.InterruptedException;
+
 import org.sqlite.database.sqlite.SQLiteDatabase;
 import org.sqlite.database.sqlite.SQLiteStatement;
 
@@ -22,6 +26,8 @@ public class CustomSqlite extends Activity
   private TextView myTV;          /* Text view widget */
   private int myNTest;            /* Number of tests attempted */
   private int myNErr;             /* Number of tests failed */
+
+  File DB_PATH;
 
   /** Called when the activity is first created. */
   @Override
@@ -62,10 +68,38 @@ public class CustomSqlite extends Activity
   }
 
   /*
+  ** Test that a database connection may be accessed from a second thread.
+  */
+  public void thread_test_1(){
+    SQLiteDatabase.deleteDatabase(DB_PATH);
+    final SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(DB_PATH, null);
+
+    String db_path2 = DB_PATH.toString() + "2";
+
+    db.execSQL("CREATE TABLE t1(x, y)");
+    db.execSQL("INSERT INTO t1 VALUES (1, 2), (3, 4)");
+
+    Thread t = new Thread( new Runnable() {
+      public void run() {
+        SQLiteStatement st = db.compileStatement("SELECT sum(x+y) FROM t1");
+        String res = st.simpleQueryForString();
+        test_result("thread_test_1", res, "10");
+      }
+    });
+
+    t.start();
+    try {
+      t.join();
+    } catch (InterruptedException e) {
+    }
+  }
+
+  /*
   ** Use a Cursor to loop through the results of a SELECT query.
   */
   public void csr_test_1(){
-    SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(":memory:", null);
+    SQLiteDatabase.deleteDatabase(DB_PATH);
+    SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(DB_PATH, null);
     String res = "";
 
     db.execSQL("CREATE TABLE t1(x)");
@@ -85,8 +119,37 @@ public class CustomSqlite extends Activity
     test_result("csr_test_1", res, ".one.two.three");
   }
 
+  /*
+  ** Check that using openSeeDatabase() creates encrypted databases. 
+  */
+  public void see_test_1(){
+    SQLiteDatabase.deleteDatabase(DB_PATH);
+    String res = "";
+    
+    SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(DB_PATH, null);
+    db.execSQL("PRAGMA key = 'secretkey'");
+
+    db.execSQL("CREATE TABLE t1(x)");
+    db.execSQL("INSERT INTO t1 VALUES ('one'), ('two'), ('three')");
+    
+    Cursor c = db.rawQuery("SELECT x FROM t1", null);
+    if( c!=null ){
+      boolean bRes;
+      for(bRes=c.moveToFirst(); bRes; bRes=c.moveToNext()){
+        String x = c.getString(0);
+        res = res + "." + x;
+      }
+    }else{
+      test_warning("see_test_1", "c==NULL");
+    }
+
+    test_result("see_test_1", res, ".one.two.three");
+  }
+
   public void run_the_tests(View view){
     System.loadLibrary("sqliteX");
+    DB_PATH = getApplicationContext().getDatabasePath("test.db");
+    DB_PATH.mkdirs();
 
     myTV.setText("");
     myNErr = 0;
@@ -95,6 +158,8 @@ public class CustomSqlite extends Activity
     try {
       report_version();
       csr_test_1();
+      thread_test_1();
+      see_test_1();
 
       myTV.append("\n" + myNErr + " errors from " + myNTest + " tests\n");
     } catch(Exception e) {

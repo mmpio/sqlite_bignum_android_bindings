@@ -8,6 +8,7 @@ LOCAL_CFLAGS += -Wno-unused-parameter -Wno-int-to-pointer-cast
 LOCAL_CFLAGS += -Wno-maybe-uninitialized -Wno-parentheses
 LOCAL_CPPFLAGS += -Wno-conversion-null
 
+
 ifeq ($(TARGET_ARCH), arm)
 	LOCAL_CFLAGS += -DPACKED="__attribute__ ((packed))"
 else
@@ -19,8 +20,15 @@ LOCAL_SRC_FILES:=                             \
 	android_database_SQLiteConnection.cpp \
 	android_database_SQLiteGlobal.cpp     \
 	android_database_SQLiteDebug.cpp      \
-	JNIHelp.cpp JniConstants.cpp          \
-	sqlite3.c
+	JNIHelp.cpp JniConstants.cpp
+
+#
+# For a SEE build, add the SEE sources to the tree and uncomment the first
+# two of the following three lines.
+#
+LOCAL_SRC_FILES += sqlite3-see.c
+LOCAL_CFLAGS    += -DSQLITE_HAS_CODEC
+# LOCAL_SRC_FILES += sqlite3.c
 
 LOCAL_C_INCLUDES += nativehelper/
 

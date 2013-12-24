@@ -158,6 +158,9 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
     private static native void nativeCancel(int connectionPtr);
     private static native void nativeResetCancel(int connectionPtr, boolean cancelable);
 
+    private static native boolean nativeHasCodec();
+    public static boolean hasCodec(){ return nativeHasCodec(); }
+
     private SQLiteConnection(SQLiteConnectionPool pool,
             SQLiteDatabaseConfiguration configuration,
             int connectionId, boolean primaryConnection) {
@@ -216,7 +219,9 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
         setWalModeFromConfiguration();
         setJournalSizeLimit();
         setAutoCheckpointInterval();
-        setLocaleFromConfiguration();
+	if( !nativeHasCodec() ){
+          setLocaleFromConfiguration();
+	}
 
         // Register custom functions.
         final int functionCount = mConfiguration.customFunctions.size();
@@ -396,6 +401,12 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
         }
     }
 
+    public void enableLocalizedCollators(){
+      if( nativeHasCodec() ){
+	setLocaleFromConfiguration();
+      }
+    }
+
     // Called by SQLiteConnectionPool only.
     void reconfigure(SQLiteDatabaseConfiguration configuration) {
         mOnlyAllowReadOnlyOperations = false;
@@ -420,7 +431,7 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
         mConfiguration.updateParametersFrom(configuration);
 
         // Update prepared statement cache size.
-        mPreparedStatementCache.resize(configuration.maxSqlCacheSize);
+        /* mPreparedStatementCache.resize(configuration.maxSqlCacheSize); */
 
         // Update foreign key mode.
         if (foreignKeyModeChanged) {

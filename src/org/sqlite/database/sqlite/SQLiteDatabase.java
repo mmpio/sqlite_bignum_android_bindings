@@ -2191,4 +2191,12 @@ public final class SQLiteDatabase extends SQLiteClosable {
     public interface CustomFunction {
         public void callback(String[] args);
     }
+
+    public static boolean hasCodec() {
+      return SQLiteConnection.hasCodec();
+    }
+
+    public void enableLocalizedCollators() {
+      mConnectionPoolLocked.enableLocalizedCollators();
+    }
 }
