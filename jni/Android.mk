@@ -1,39 +1,4 @@
+
 LOCAL_PATH:= $(call my-dir)
-include $(CLEAR_VARS)
-
-LOCAL_CFLAGS += -DHAVE_CONFIG_H -DKHTML_NO_EXCEPTIONS -DGKWQ_NO_JAVA
-LOCAL_CFLAGS += -DNO_SUPPORT_JS_BINDING -DQT_NO_WHEELEVENT -DKHTML_NO_XBL
-LOCAL_CFLAGS += -U__APPLE__
-LOCAL_CFLAGS += -Wno-unused-parameter -Wno-int-to-pointer-cast
-LOCAL_CFLAGS += -Wno-maybe-uninitialized -Wno-parentheses
-LOCAL_CPPFLAGS += -Wno-conversion-null
-
-
-ifeq ($(TARGET_ARCH), arm)
-	LOCAL_CFLAGS += -DPACKED="__attribute__ ((packed))"
-else
-	LOCAL_CFLAGS += -DPACKED=""
-endif
-
-LOCAL_SRC_FILES:=                             \
-	android_database_SQLiteCommon.cpp     \
-	android_database_SQLiteConnection.cpp \
-	android_database_SQLiteGlobal.cpp     \
-	android_database_SQLiteDebug.cpp      \
-	JNIHelp.cpp JniConstants.cpp
-
-#
-# For a SEE build, add the SEE sources to the tree and uncomment the first
-# two of the following three lines.
-#
-#    LOCAL_SRC_FILES += sqlite3-see.c
-#    LOCAL_CFLAGS    += -DSQLITE_HAS_CODEC
-LOCAL_SRC_FILES += sqlite3.c
-
-LOCAL_C_INCLUDES += nativehelper/
-
-LOCAL_MODULE:= libsqliteX
-LOCAL_LDLIBS += -ldl -llog 
-
-include $(BUILD_SHARED_LIBRARY)
+include $(LOCAL_PATH)/sqlite/Android.mk
 
