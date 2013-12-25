@@ -168,7 +168,7 @@ stock Android interface that applications need to be aware of:
 differently in two more respects:
 
 <ol>
-  <li> <p>The SQLiteDatabase.enableWriteAheadLogging() method does not enable
+  <li> <p>The SQLiteDatabase.<a href="http://developer.android.com/reference/android/database/sqlite/SQLiteDatabase.html#enableWriteAheadLogging()">enableWriteAheadLogging()</a> method does not enable
        connection pooling. It is not possible for connection pooling to be
        used with a SEE-enabled build (even if the database is unencrypted).
 
