@@ -197,9 +197,7 @@ public class CustomSqlite extends Activity
 
     res = "unencrypted";
     try {
-      db = SQLiteDatabase.openOrCreateDatabase(
-	  DB_PATH.getPath(), null, new DoNotDeleteErrorHandler()
-      );
+      db = SQLiteDatabase.openOrCreateDatabase(DB_PATH.getPath(), null);
       string_from_t1_x(db);
     } catch ( SQLiteDatabaseCorruptException e ){
       res = "encrypted";
@@ -210,9 +208,7 @@ public class CustomSqlite extends Activity
 
     res = "unencrypted";
     try {
-      db = SQLiteDatabase.openOrCreateDatabase(
-	  DB_PATH.getPath(), null, new DoNotDeleteErrorHandler()
-      );
+      db = SQLiteDatabase.openOrCreateDatabase(DB_PATH.getPath(), null);
       db.execSQL("PRAGMA key = 'otherkey'");
       string_from_t1_x(db);
     } catch ( SQLiteDatabaseCorruptException e ){

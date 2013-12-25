@@ -53,6 +53,10 @@ public final class DefaultDatabaseErrorHandler implements DatabaseErrorHandler {
     public void onCorruption(SQLiteDatabase dbObj) {
         Log.e(TAG, "Corruption reported by sqlite on database: " + dbObj.getPath());
 
+	// If this is a SEE build, do not delete any database files.
+	//
+	if( SQLiteDatabase.hasCodec() ) return;
+
         // is the corruption detected even before database could be 'opened'?
         if (!dbObj.isOpen()) {
             // database files are not even openable. delete this database file.
