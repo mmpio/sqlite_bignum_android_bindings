@@ -15,6 +15,7 @@
  */
 
 package dalvik.system;
+import android.util.Log;
 
 /**
  * CloseGuard is a mechanism for flagging implicit finalizer cleanup of
@@ -224,7 +225,7 @@ public final class CloseGuard {
      */
     private static final class DefaultReporter implements Reporter {
         @Override public void report (String message, Throwable allocationSite) {
-            /* System.logW(message, allocationSite); */
+            Log.w(message, allocationSite);
         }
     }
 }
