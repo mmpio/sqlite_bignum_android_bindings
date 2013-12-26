@@ -946,7 +946,9 @@ public final class SQLiteConnectionPool implements Closeable {
     }
 
     private void setMaxConnectionPoolSizeLocked() {
-        if ((mConfiguration.openFlags & SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING) != 0) {
+        if( !SQLiteDatabase.hasCodec()
+	 && (mConfiguration.openFlags & SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING) != 0
+	) {
             mMaxConnectionPoolSize = SQLiteGlobal.getWALConnectionPoolSize();
         } else {
             // TODO: We don't actually need to restrict the connection pool size to 1

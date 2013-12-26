@@ -129,6 +129,45 @@ public class CustomSqlite extends Activity
   }
 
   /*
+  ** Test that a database connection may be accessed from a second thread.
+  */
+  public void thread_test_2(){
+    SQLiteDatabase.deleteDatabase(DB_PATH);
+    final SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(DB_PATH, null);
+
+    db.execSQL("CREATE TABLE t1(x, y)");
+    db.execSQL("INSERT INTO t1 VALUES (1, 2), (3, 4)");
+
+    db.enableWriteAheadLogging();
+    db.beginTransactionNonExclusive();
+    db.execSQL("INSERT INTO t1 VALUES (5, 6)");
+
+    Thread t = new Thread( new Runnable() {
+      public void run() {
+        SQLiteStatement st = db.compileStatement("SELECT sum(x+y) FROM t1");
+        String res = st.simpleQueryForString();
+      }
+    });
+
+    t.start();
+    String res = "concurrent";
+
+    int i;
+    for(i=0; i<20 && t.isAlive(); i++){
+      try { Thread.sleep(100); } catch(InterruptedException e) {}
+    }
+    if( t.isAlive() ){ res = "blocked"; }
+
+    db.endTransaction();
+    try { t.join(); } catch(InterruptedException e) {}
+    if( SQLiteDatabase.hasCodec() ){
+      test_result("thread_test_2", res, "blocked");
+    } else {
+      test_result("thread_test_2", res, "concurrent");
+    }
+  }
+
+  /*
   ** Use a Cursor to loop through the results of a SELECT query.
   */
   public void csr_test_1() throws Exception {
@@ -273,6 +312,7 @@ public class CustomSqlite extends Activity
       report_version();
       csr_test_1();
       thread_test_1();
+      thread_test_2(); 
       see_test_1();
       see_test_2();
 
