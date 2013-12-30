@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/*
+** Modified to support SQLite extensions by the SQLite developers: 
+** sqlite-dev@sqlite.org.
+*/
 
 #define LOG_TAG "SQLiteDebug"
 

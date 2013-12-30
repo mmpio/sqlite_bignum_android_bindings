@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/*
+** Modified to support SQLite extensions by the SQLite developers: 
+** sqlite-dev@sqlite.org.
+*/
 
 #ifndef _ANDROID_DATABASE_SQLITE_COMMON_H
 #define _ANDROID_DATABASE_SQLITE_COMMON_H
