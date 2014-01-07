@@ -35,7 +35,7 @@ still continuing to use the standard Java interface.
 
 <p>
   Following this, the directory structures should contain 
-  [/tree?ci=trunk&re=%5ejni%7csrc/org/sqlite/data | these files].
+  [/tree?ci=trunk&re=%5ejni%7csrc/org/sqlite/data&expand | these files].
 
 <p>
   Directory "jni/sqlite/" contains copies of the sqlite3.h and sqlite3.c 
