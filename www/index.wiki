@@ -23,6 +23,12 @@ still continuing to use the standard Java interface.
 <h3>Installation</h3>
 
 <p>
+  Android API levels 15 (Android 4.0.3) and greater are supported. If
+  targetting API level 16 or greater, use the default "trunk" branch of this
+  project. Or, for API level 15, use the "api-level-15" branch. It is not possible
+  to target an API level lower than 15.
+
+<p>
   Copy the following files from this project into the equivalent locations in
   the application project.
 
@@ -36,6 +42,13 @@ still continuing to use the standard Java interface.
 <p>
   Following this, the directory structures should contain 
   [/tree?ci=trunk&re=%5ejni%7csrc/org/sqlite/data&expand | these files].
+
+<p>
+  For API level 15 only, also copy the following:
+
+<pre>
+    src/org/sqlite/os/*                (copy contents of directory recursively)
+</pre>
 
 <p>
   Directory "jni/sqlite/" contains copies of the sqlite3.h and sqlite3.c 
