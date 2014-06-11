@@ -37,7 +37,7 @@ import android.util.Log;
 import android.util.Pair;
 import android.util.Printer;
 
-import dalvik.system.CloseGuard;
+import org.sqlite.database.sqlite.CloseGuard;
 
 import java.io.File;
 import java.io.FileFilter;

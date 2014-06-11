@@ -20,7 +20,7 @@
 
 package org.sqlite.database.sqlite;
 
-import dalvik.system.CloseGuard;
+import org.sqlite.database.sqlite.CloseGuard;
 
 import org.sqlite.database.sqlite.SQLiteDebug.DbStats;
 import android.os.CancellationSignal;

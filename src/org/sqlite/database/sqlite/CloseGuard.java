@@ -18,7 +18,7 @@
 ** sqlite-dev@sqlite.org.
 */
 
-package dalvik.system;
+package org.sqlite.database.sqlite;
 import android.util.Log;
 
 /**
