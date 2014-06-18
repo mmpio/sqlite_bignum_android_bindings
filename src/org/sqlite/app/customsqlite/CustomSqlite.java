@@ -170,6 +170,54 @@ public class CustomSqlite extends Activity
   /*
   ** Use a Cursor to loop through the results of a SELECT query.
   */
+  public void csr_test_2() throws Exception {
+    SQLiteDatabase.deleteDatabase(DB_PATH);
+    SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(DB_PATH, null);
+    String res = "";
+    String expect = "";
+    int i;
+    int nRow = 0;
+
+    db.execSQL("CREATE TABLE t1(x)");
+    db.execSQL("BEGIN");
+    for(i=0; i<1000; i++){
+      db.execSQL("INSERT INTO t1 VALUES ('one'), ('two'), ('three')");
+      expect += ".one.two.three";
+    }
+    db.execSQL("COMMIT");
+    Cursor c = db.rawQuery("SELECT x FROM t1", null);
+    if( c!=null ){
+      boolean bRes;
+      for(bRes=c.moveToFirst(); bRes; bRes=c.moveToNext()){
+        String x = c.getString(0);
+        res = res + "." + x;
+      }
+    }else{
+      test_warning("csr_test_1", "c==NULL");
+    }
+    test_result("csr_test_2.1", res, expect);
+
+    db.execSQL("BEGIN");
+    for(i=0; i<1000; i++){
+      db.execSQL("INSERT INTO t1 VALUES (X'123456'), (X'789ABC'), (X'DEF012')");
+      db.execSQL("INSERT INTO t1 VALUES (45), (46), (47)");
+      db.execSQL("INSERT INTO t1 VALUES (8.1), (8.2), (8.3)");
+      db.execSQL("INSERT INTO t1 VALUES (NULL), (NULL), (NULL)");
+    }
+    db.execSQL("COMMIT");
+
+    c = db.rawQuery("SELECT x FROM t1", null);
+    if( c!=null ){
+      boolean bRes;
+      for(bRes=c.moveToFirst(); bRes; bRes=c.moveToNext()) nRow++;
+    }else{
+      test_warning("csr_test_1", "c==NULL");
+    }
+    test_result("csr_test_2.2", "" + nRow, "15000");
+
+    db.close();
+  }
+
   public void csr_test_1() throws Exception {
     SQLiteDatabase.deleteDatabase(DB_PATH);
     SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(DB_PATH, null);
@@ -311,6 +359,7 @@ public class CustomSqlite extends Activity
     try {
       report_version();
       csr_test_1();
+      csr_test_2();
       thread_test_1();
       thread_test_2(); 
       see_test_1();

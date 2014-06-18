@@ -677,18 +677,18 @@ static jboolean copyRowToWindow(
         const char *zVal = (const char*)sqlite3_column_text(pStmt, i);
         jstring val = pEnv->NewStringUTF(zVal);
         bOk = pEnv->CallBooleanMethod(win, aMethod[CW_PUTSTRING].id, val, iRow, i);
+        pEnv->DeleteLocalRef(val);
         break;
       }
 
       default: {
         assert( sqlite3_column_type(pStmt, i)==SQLITE_BLOB );
-
         const jbyte *p = (const jbyte*)sqlite3_column_blob(pStmt, i);
         int n = sqlite3_column_bytes(pStmt, i);
-
         jbyteArray val = pEnv->NewByteArray(n);
         pEnv->SetByteArrayRegion(val, 0, n, p);
         bOk = pEnv->CallBooleanMethod(win, aMethod[CW_PUTBLOB].id, val, iRow, i);
+        pEnv->DeleteLocalRef(val);
         break;
       }
     }
