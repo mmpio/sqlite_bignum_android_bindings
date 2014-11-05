@@ -242,6 +242,21 @@ public class CustomSqlite extends Activity
     test_result("csr_test_1.2", db_is_encrypted(), "unencrypted");
   }
 
+
+  public void stmt_jrnl_test_1() throws Exception {
+    SQLiteDatabase.deleteDatabase(DB_PATH);
+    SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(DB_PATH, null);
+    String res = "";
+
+    db.execSQL("CREATE TABLE t1(x, y UNIQUE)");
+    db.execSQL("BEGIN");
+      db.execSQL("INSERT INTO t1 VALUES(1, 1), (2, 2), (3, 3)");
+      db.execSQL("UPDATE t1 SET y=y+3");
+    db.execSQL("COMMIT");
+    db.close();
+    test_result("stmt_jrnl_test_1.1", "did not crash", "did not crash");
+  }
+
   public String string_from_t1_x(SQLiteDatabase db){
     String res = "";
 
@@ -346,7 +361,6 @@ public class CustomSqlite extends Activity
     test_result("see_test_2.5", db_is_encrypted(), "encrypted");
   }
 
-
   public void run_the_tests(View view){
     System.loadLibrary("sqliteX");
     DB_PATH = getApplicationContext().getDatabasePath("test.db");
@@ -364,6 +378,7 @@ public class CustomSqlite extends Activity
       thread_test_2(); 
       see_test_1();
       see_test_2();
+      stmt_jrnl_test_1();
 
       myTV.append("\n" + myNErr + " errors from " + myNTest + " tests\n");
     } catch(Exception e) {

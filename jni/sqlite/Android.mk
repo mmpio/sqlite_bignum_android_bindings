@@ -5,6 +5,12 @@ include $(CLEAR_VARS)
 # If using SEE, uncomment the following:
 # LOCAL_CFLAGS += -DSQLITE_HAS_CODEC
 
+# This is important - it causes SQLite to use memory for temp files. Since 
+# Android has no globally writable temp directory, if this is not defined the
+# application throws an exception when it tries to create a temp file.
+#
+LOCAL_CFLAGS += -DSQLITE_TEMP_STORE=3
+
 LOCAL_CFLAGS += -DHAVE_CONFIG_H -DKHTML_NO_EXCEPTIONS -DGKWQ_NO_JAVA
 LOCAL_CFLAGS += -DNO_SUPPORT_JS_BINDING -DQT_NO_WHEELEVENT -DKHTML_NO_XBL
 LOCAL_CFLAGS += -U__APPLE__
