@@ -70,6 +70,20 @@ still continuing to use the standard Java interface.
 <h3>Application Programming</h3>
 
 <p>
+  Before using any SQLite related methods or objects, the shared library
+  compiled using the ndk must be loaded into the application using the
+  following code:
+
+<verbatim>
+  System.loadLibrary("sqliteX");
+</verbatim>
+
+<p>
+  One way to ensure that the shared library is loaded early enough is
+  to add it to a "static" block within the declaration of the application's
+  main Activity class.
+
+<p>
   The classes that make up the built-in Android SQLite interface reside in
   the "android.database.sqlite" namespace. This interface provides all of
   the same classes, except within the "org.sqlite.database.sqlite" namespace.
