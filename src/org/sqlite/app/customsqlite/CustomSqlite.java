@@ -218,6 +218,19 @@ public class CustomSqlite extends Activity
     db.close();
   }
 
+  public String string_from_t1_x(SQLiteDatabase db){
+    String res = "";
+
+    Cursor c = db.rawQuery("SELECT x FROM t1", null);
+    boolean bRes;
+    for(bRes=c.moveToFirst(); bRes; bRes=c.moveToNext()){
+      String x = c.getString(0);
+      res = res + "." + x;
+    }
+
+    return res;
+  }
+
   public void csr_test_1() throws Exception {
     SQLiteDatabase.deleteDatabase(DB_PATH);
     SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(DB_PATH, null);
@@ -226,22 +239,12 @@ public class CustomSqlite extends Activity
     db.execSQL("CREATE TABLE t1(x)");
     db.execSQL("INSERT INTO t1 VALUES ('one'), ('two'), ('three')");
     
-    Cursor c = db.rawQuery("SELECT x FROM t1", null);
-    if( c!=null ){
-      boolean bRes;
-      for(bRes=c.moveToFirst(); bRes; bRes=c.moveToNext()){
-        String x = c.getString(0);
-        res = res + "." + x;
-      }
-    }else{
-      test_warning("csr_test_1", "c==NULL");
-    }
+    res = string_from_t1_x(db);
     test_result("csr_test_1.1", res, ".one.two.three");
 
     db.close();
     test_result("csr_test_1.2", db_is_encrypted(), "unencrypted");
   }
-
 
   public void stmt_jrnl_test_1() throws Exception {
     SQLiteDatabase.deleteDatabase(DB_PATH);
@@ -257,17 +260,21 @@ public class CustomSqlite extends Activity
     test_result("stmt_jrnl_test_1.1", "did not crash", "did not crash");
   }
 
-  public String string_from_t1_x(SQLiteDatabase db){
+
+  public void supp_char_test_1() throws Exception {
+    SQLiteDatabase.deleteDatabase(DB_PATH);
+    SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(DB_PATH, null);
     String res = "";
+    String smiley = new String( Character.toChars(0x10000) );
 
-    Cursor c = db.rawQuery("SELECT x FROM t1", null);
-    boolean bRes;
-    for(bRes=c.moveToFirst(); bRes; bRes=c.moveToNext()){
-      String x = c.getString(0);
-      res = res + "." + x;
-    }
+    db.execSQL("CREATE TABLE t1(x)");
+    db.execSQL("INSERT INTO t1 VALUES ('a" + smiley + "b')");
 
-    return res;
+    res = string_from_t1_x(db);
+    
+    test_result("supp_char_test1." + smiley, res, ".a" + smiley + "b");
+
+    db.close();
   }
 
   /*
@@ -372,6 +379,7 @@ public class CustomSqlite extends Activity
 
     try {
       report_version();
+      supp_char_test_1();
       csr_test_1();
       csr_test_2();
       thread_test_1();
