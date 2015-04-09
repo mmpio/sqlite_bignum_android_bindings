@@ -343,6 +343,22 @@ public class CustomSqlite extends Activity
   } 
 
   /*
+  ** Check that SQLiteOpenHelper works.
+  */
+  public void helper_test_1() throws Exception {
+    /* SQLiteDatabase.deleteDatabase(DB_PATH); */
+
+    MyHelper helper = new MyHelper(this);
+    SQLiteDatabase db = helper.getWritableDatabase();
+    db.execSQL("INSERT INTO t1 VALUES ('x'), ('y'), ('z')");
+
+    String res = string_from_t1_x(db);
+    test_result("helper.1", res, ".x.y.z");
+
+    helper.close();
+  }
+
+  /*
   ** If this is a SEE build, check that SQLiteOpenHelper still works.
   */
   public void see_test_2() throws Exception {
@@ -371,7 +387,7 @@ public class CustomSqlite extends Activity
   public void run_the_tests(View view){
     System.loadLibrary("sqliteX");
     DB_PATH = getApplicationContext().getDatabasePath("test.db");
-    DB_PATH.mkdirs();
+    DB_PATH.getParentFile().mkdirs();
 
     myTV.setText("");
     myNErr = 0;
@@ -379,6 +395,7 @@ public class CustomSqlite extends Activity
 
     try {
       report_version();
+      helper_test_1();
       supp_char_test_1();
       csr_test_1();
       csr_test_2();
