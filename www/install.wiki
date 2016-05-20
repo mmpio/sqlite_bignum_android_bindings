@@ -49,8 +49,8 @@ if you wish to use the version compatible with API level 15.
     by adding code similar to the following to the application modules
     <code>build.gradle</code> file: <verbatim>
     dependencies {
-        // Change "sqlite3-release" to the name of the new module!
-        compile project(':sqlite3-release')
+        // Change "sqlite3-android-3130000" to the name of the new module!
+        compile project(':sqlite3-android-3130000')
     }</verbatim>
 </ol>
 <p>
