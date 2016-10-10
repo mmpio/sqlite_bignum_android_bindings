@@ -53,6 +53,10 @@ if you wish to use the version compatible with API level 15.
         compile project(':sqlite-android-3130000')
     }</verbatim>
 </ol>
+
+<p> A more detailed description of using the steps above to create a very 
+    simple applictation is [./verysimpleapp.wiki | available here].
+
 <p>
   At time of writing, aar files may only be used directly in Android Studio
   projects, not projects created using other IDEs (e.g. Eclipse, IntelliJ
