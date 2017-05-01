@@ -5,6 +5,8 @@ include $(CLEAR_VARS)
 # If using SEE, uncomment the following:
 # LOCAL_CFLAGS += -DSQLITE_HAS_CODEC
 
+#Define HAVE_USLEEP, otherwise ALL sleep() calls take at least 1000ms
+LOCAL_CFLAGS += -DHAVE_USLEEP=1
 
 # Enable SQLite extensions.
 LOCAL_CFLAGS += -DSQLITE_ENABLE_FTS5 
