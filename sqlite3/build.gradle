@@ -4,18 +4,13 @@ android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
 
-    publishNonDefault true
 
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
-    }
-
-    configurations {
-        debug
-        release
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -27,17 +22,15 @@ android {
             minifyEnabled false
             debuggable true
             jniDebuggable true
-            externalNativeBuild {
-                ndkBuild {
-                    arguments "NDK_DEBUG:=1"
-                    abiFilters "armeabi-v7a", "armeabi", "x86"
-                }
+            ndk {
+                // Building with NDK_DEBUG=1 for mips crashes the compiler in ndk 14.
+                abiFilters 'armeabi', 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64', 'mips64' // 'mips'
             }
+
         }
     }
 
     //sourceSets.main.jni.srcDirs = [] //disable automatic ndk-build call
-
     externalNativeBuild {
         ndkBuild {
             path 'src/main/jni/Android.mk'
@@ -47,5 +40,8 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestCompile 'com.android.support:support-annotations:24.0.0'
+    androidTestCompile 'com.android.support.test:runner:0.5'
+    androidTestCompile 'com.android.support.test:rules:0.5'
     testCompile 'junit:junit:4.12'
 }
