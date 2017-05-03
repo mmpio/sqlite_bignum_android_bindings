@@ -24,8 +24,9 @@ LOCAL_CFLAGS += -DHAVE_CONFIG_H -DKHTML_NO_EXCEPTIONS -DGKWQ_NO_JAVA
 LOCAL_CFLAGS += -DNO_SUPPORT_JS_BINDING -DQT_NO_WHEELEVENT -DKHTML_NO_XBL
 LOCAL_CFLAGS += -U__APPLE__
 LOCAL_CFLAGS += -DHAVE_STRCHRNUL=0
+LOCAL_CFLAGS += -DSQLITE_USE_URI=1
 LOCAL_CFLAGS += -Wno-unused-parameter -Wno-int-to-pointer-cast
-LOCAL_CFLAGS += -Wno-maybe-uninitialized -Wno-parentheses
+LOCAL_CFLAGS += -Wno-uninitialized -Wno-parentheses
 LOCAL_CPPFLAGS += -Wno-conversion-null
 
 

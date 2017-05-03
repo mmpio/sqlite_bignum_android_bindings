@@ -1,11 +1,11 @@
 package org.sqlite.database;
 
-
 import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
+import android.util.Log;
 
 import junit.framework.Assert;
 
@@ -13,10 +13,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.sqlite.database.sqlite.SQLiteConnection;
 import org.sqlite.database.sqlite.SQLiteDatabase;
 import org.sqlite.database.sqlite.SQLiteOpenHelper;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
@@ -26,16 +29,10 @@ class MyHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "mydb.db";
 
     public MyHelper(Context ctx){
-        super(ctx, ctx.getDatabasePath(DATABASE_NAME).getAbsolutePath(), null, 1);
+        super(ctx, "file:" + ctx.getDatabasePath(DATABASE_NAME).getAbsolutePath() + "?key=secret", null, 1);
     }
     public void onConfigure(SQLiteDatabase db){
-        db.execSQL("PRAGMA key = 'secret'");
-
         db.enableWriteAheadLogging();
-
-        final Cursor pragmaCursor = db.rawQuery("PRAGMA journal_mode = WAL", null);
-        pragmaCursor.moveToFirst();
-        pragmaCursor.close();
     }
     public void onCreate(SQLiteDatabase db){
         db.execSQL("CREATE TABLE t1(x)");
@@ -50,7 +47,28 @@ class MyHelper extends SQLiteOpenHelper {
  */
 @RunWith(AndroidJUnit4.class)
 public class SeeTest1 {
-        private Context mContext;
+    private Context mContext;
+
+    /*
+    ** Test if the database at path is encrypted or not. The db
+    ** is assumed to be encrypted if the first 6 bytes are anything
+    ** other than "SQLite".
+    **
+    ** If the test reveals that the db is encrypted, return the string
+    ** "encrypted". Otherwise, "unencrypted".
+    */
+    public String db_is_encrypted(String path) throws Exception {
+      FileInputStream in = new FileInputStream(mContext.getDatabasePath(path));
+
+      byte[] buffer = new byte[6];
+      in.read(buffer, 0, 6);
+
+      String res = "encrypted";
+      if( Arrays.equals(buffer, (new String("SQLite")).getBytes()) ){
+        res = "unencrypted";
+      }
+      return res;
+    }
 
     @Before
     public void setup() throws Exception {
@@ -68,7 +86,7 @@ public class SeeTest1 {
     }
 
     @Test
-    public void testAndroidDefaultWalMode() throws Exception {
+    public void testEncryptedWalMode() throws Exception {
         // create database
         final MyHelper helper = new MyHelper(mContext);
         helper.getWritableDatabase();
@@ -76,7 +94,7 @@ public class SeeTest1 {
         // verify that WAL journal mode is set
         final Cursor pragmaCursor = helper.getWritableDatabase().rawQuery("PRAGMA journal_mode", null);
         pragmaCursor.moveToFirst();
-        Assert.assertEquals(pragmaCursor.getString(pragmaCursor.getColumnIndex("journal_mode")), "wal");
+        Assert.assertEquals("wal", pragmaCursor.getString(pragmaCursor.getColumnIndex("journal_mode")));
         pragmaCursor.close();
 
         // start long running transaction
@@ -108,6 +126,12 @@ public class SeeTest1 {
         //verify that the operation didn't wait until the 3000ms long operation finished
         if (System.currentTimeMillis() - startTime > 3000) {
             throw new Exception("WAL mode isn't working corectly - read operation was blocked");
+        }
+
+        if( SQLiteConnection.hasCodec() ){
+          Assert.assertEquals("encrypted", db_is_encrypted(MyHelper.DATABASE_NAME));
+        } else {
+          Assert.assertEquals("unencrypted", db_is_encrypted(MyHelper.DATABASE_NAME));
         }
     }
 }

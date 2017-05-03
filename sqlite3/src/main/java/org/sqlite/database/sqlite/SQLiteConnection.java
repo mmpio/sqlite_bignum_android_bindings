@@ -222,10 +222,8 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
         setForeignKeyModeFromConfiguration();
         setJournalSizeLimit();
 	setAutoCheckpointInterval();
-	if( !nativeHasCodec() ){
-	  setWalModeFromConfiguration();
-          setLocaleFromConfiguration();
-	}
+        setWalModeFromConfiguration();
+        setLocaleFromConfiguration();
 
         // Register custom functions.
         final int functionCount = mConfiguration.customFunctions.size();
