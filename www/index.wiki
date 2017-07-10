@@ -24,7 +24,7 @@ continuing to use the standard Android interface.
 Available User Documentation:
 
   *  [./install.wiki | Installation Guide ] - this page describes the various
-     ways the the SQLite Android bindings may be integrated with an
+     ways the SQLite Android bindings may be integrated with an
      application.
 
   *  [./usage.wiki | Application Programming ] - this page describes the
@@ -33,4 +33,3 @@ Available User Documentation:
 
   *  [./see.wiki | Using the Simple Encryption Extension (SEE) ] - extra notes
   regarding the use of the proprietary encryption extension SEE.
-
