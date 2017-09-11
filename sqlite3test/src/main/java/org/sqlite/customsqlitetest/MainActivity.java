@@ -2,6 +2,7 @@ package org.sqlite.customsqlitetest;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -427,6 +428,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             report_version();
+            run_ds_test();
             helper_test_1();
             supp_char_test_1();
             csr_test_1();
@@ -444,6 +446,35 @@ public class MainActivity extends AppCompatActivity {
             myTV.append(android.util.Log.getStackTraceString(e) + "\n");
         }
     }
+
+    private void printPragma(SQLiteDatabase db) {
+      Cursor cursor = db.rawQuery("SELECT * FROM pragma_compile_options;", null);
+      cursor.moveToFirst();
+      do {
+        Log.e("ds", cursor.getString(0));
+      } while(cursor.moveToNext());
+    }
+
+    private void run_ds_test() throws Exception {
+      File file = new File(getExternalCacheDir().getPath() + "/dstest.db");
+      file.delete();
+      file.createNewFile();
+
+      Uri.Builder builder = new Uri.Builder();
+      builder.scheme("file");
+      builder.path(file.toString());
+      builder.appendQueryParameter("zv","zlib");
+      builder.appendQueryParameter("password","datascan");
+      Uri uri = builder.build();
+      Log.e("ds", "uri is " + uri.toString());
+
+      Log.e("ds", "file uri is " + new File(uri.toString()).getPath());
+      SQLiteDatabase sqLiteDatabase = SQLiteDatabase.openOrCreateDatabase(new File(uri.toString()), null);
+      printPragma(sqLiteDatabase);
+        myTV.append("ds_test ok\n");
+
+    }
+
 
     public void json_test_1() throws Exception {
         SQLiteDatabase.deleteDatabase(DB_PATH);
