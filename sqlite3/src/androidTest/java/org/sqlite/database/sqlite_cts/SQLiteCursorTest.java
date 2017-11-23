@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.database.sqlite.cts;
+package org.sqlite.database.sqlite_cts;
 
 
 import android.content.Context;
@@ -23,11 +23,12 @@ import android.database.Cursor;
 import android.database.CursorWindow;
 import android.database.DataSetObserver;
 import android.database.StaleDataException;
-import android.database.sqlite.SQLiteCursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDirectCursorDriver;
+import org.sqlite.database.sqlite.SQLiteCursor;
+import org.sqlite.database.sqlite.SQLiteDatabase;
+import org.sqlite.database.sqlite.SQLiteDirectCursorDriver;
 import android.test.AndroidTestCase;
 
+import java.io.File;
 import java.util.Arrays;
 
 /**
@@ -46,8 +47,11 @@ public class SQLiteCursorTest extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        getContext().deleteDatabase(DATABASE_FILE);
-        mDatabase = getContext().openOrCreateDatabase(DATABASE_FILE, Context.MODE_PRIVATE, null);
+        System.loadLibrary("sqliteX");
+        File f = mContext.getDatabasePath(DATABASE_FILE);
+        f.mkdirs();
+        if (f.exists()) { f.delete(); }
+        mDatabase = SQLiteDatabase.openOrCreateDatabase(f, null);
         createTable(TABLE_NAME, TABLE_COLUMNS);
         addValuesIntoTable(TABLE_NAME, DEFAULT_TABLE_VALUE_BEGINS, TEST_COUNT);
     }

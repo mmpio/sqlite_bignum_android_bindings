@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package android.database.sqlite.cts;
+package org.sqlite.database.sqlite_cts;
 
 
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDoneException;
-import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteQuery;
-import android.database.sqlite.SQLiteStatement;
+import org.sqlite.database.sqlite.SQLiteDatabase;
+import org.sqlite.database.sqlite.SQLiteDoneException;
+import org.sqlite.database.sqlite.SQLiteException;
+import org.sqlite.database.sqlite.SQLiteQuery;
+import org.sqlite.database.sqlite.SQLiteStatement;
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
+
+import java.io.File;
 
 public class SQLiteProgramTest extends AndroidTestCase {
     private static final String DATABASE_NAME = "database_test.db";
@@ -35,9 +37,11 @@ public class SQLiteProgramTest extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-
-        getContext().deleteDatabase(DATABASE_NAME);
-        mDatabase = getContext().openOrCreateDatabase(DATABASE_NAME, Context.MODE_PRIVATE, null);
+        System.loadLibrary("sqliteX");
+        File f = mContext.getDatabasePath(DATABASE_NAME);
+        f.mkdirs();
+        if (f.exists()) { f.delete(); }
+        mDatabase = SQLiteDatabase.openOrCreateDatabase(f,null);
         assertNotNull(mDatabase);
     }
 

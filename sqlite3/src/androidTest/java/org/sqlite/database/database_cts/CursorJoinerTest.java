@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package android.database.cts;
+package org.sqlite.database.database_cts;
 
 
 import android.content.Context;
 import android.database.Cursor;
 import android.database.CursorJoiner;
 import android.database.CursorJoiner.Result;
-import android.database.sqlite.SQLiteDatabase;
+import org.sqlite.database.sqlite.SQLiteDatabase;
 import android.test.AndroidTestCase;
 
 import java.io.File;
@@ -47,6 +47,7 @@ public class CursorJoinerTest extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        System.loadLibrary("sqliteX");
         setupDatabase();
     }
 

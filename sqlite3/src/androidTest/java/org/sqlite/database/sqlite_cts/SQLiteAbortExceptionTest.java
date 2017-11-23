@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package android.database.sqlite.cts;
+package org.sqlite.database.sqlite_cts;
 
-import android.database.sqlite.SQLiteAbortException;
+import org.sqlite.database.sqlite.SQLiteAbortException;
 import android.test.AndroidTestCase;
 
 public class SQLiteAbortExceptionTest extends AndroidTestCase {

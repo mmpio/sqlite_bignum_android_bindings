@@ -14,23 +14,26 @@
  * limitations under the License.
  */
 
-package android.database.sqlite.cts;
+package org.sqlite.database.sqlite_cts;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteCursor;
-import android.database.sqlite.SQLiteCursorDriver;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteQuery;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
+import org.sqlite.database.sqlite.SQLiteCursor;
+import org.sqlite.database.sqlite.SQLiteCursorDriver;
+import org.sqlite.database.sqlite.SQLiteDatabase;
+import org.sqlite.database.sqlite.SQLiteOpenHelper;
+import org.sqlite.database.sqlite.SQLiteQuery;
+import org.sqlite.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.test.AndroidTestCase;
+
+import java.io.File;
 
 /**
  * Test {@link SQLiteOpenHelper}.
  */
 public class SQLiteOpenHelperTest extends AndroidTestCase {
     private static final String TEST_DATABASE_NAME = "database_test.db";
+    static String DATABASE_PATH;
     private static final int TEST_VERSION = 1;
     private static final int TEST_ILLEGAL_VERSION = 0;
     private MockOpenHelper mOpenHelper;
@@ -44,21 +47,23 @@ public class SQLiteOpenHelperTest extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        System.loadLibrary("sqliteX");
+        DATABASE_PATH = mContext.getDatabasePath(TEST_DATABASE_NAME).toString();
         mOpenHelper = getOpenHelper();
     }
 
     public void testConstructor() {
-        new MockOpenHelper(mContext, TEST_DATABASE_NAME, mFactory, TEST_VERSION);
+        new MockOpenHelper(mContext, DATABASE_PATH, mFactory, TEST_VERSION);
 
         // Test with illegal version number.
         try {
-            new MockOpenHelper(mContext, TEST_DATABASE_NAME, mFactory, TEST_ILLEGAL_VERSION);
+            new MockOpenHelper(mContext, DATABASE_PATH, mFactory, TEST_ILLEGAL_VERSION);
             fail("Constructor of SQLiteOpenHelp should throws a IllegalArgumentException here.");
         } catch (IllegalArgumentException e) {
         }
 
         // Test with null factory
-        new MockOpenHelper(mContext, TEST_DATABASE_NAME, null, TEST_VERSION);
+        new MockOpenHelper(mContext, DATABASE_PATH, null, TEST_VERSION);
     }
 
     public void testGetDatabase() {
@@ -95,7 +100,7 @@ public class SQLiteOpenHelperTest extends AndroidTestCase {
     }
 
     private MockOpenHelper getOpenHelper() {
-        return new MockOpenHelper(mContext, TEST_DATABASE_NAME, mFactory, TEST_VERSION);
+        return new MockOpenHelper(mContext, DATABASE_PATH, mFactory, TEST_VERSION);
     }
 
     private class MockOpenHelper extends SQLiteOpenHelper {

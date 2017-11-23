@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package android.database.sqlite.cts;
+package org.sqlite.database.sqlite_cts;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteConstraintException;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDoneException;
-import android.database.sqlite.SQLiteStatement;
+import org.sqlite.database.sqlite.SQLiteConstraintException;
+import org.sqlite.database.sqlite.SQLiteDatabase;
+import org.sqlite.database.sqlite.SQLiteDoneException;
+import org.sqlite.database.sqlite.SQLiteStatement;
 import android.test.AndroidTestCase;
 import android.test.PerformanceTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
+
+import java.io.File;
 
 /*
  * These tests were taken from
@@ -46,9 +48,11 @@ public class DatabaseStatementTest extends AndroidTestCase implements Performanc
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-
-        getContext().deleteDatabase(DATABASE_NAME);
-        mDatabase = getContext().openOrCreateDatabase(DATABASE_NAME, Context.MODE_PRIVATE, null);
+        System.loadLibrary("sqliteX");
+        File f = mContext.getDatabasePath(DATABASE_NAME);
+        f.mkdirs();
+        if (f.exists()) { f.delete(); }
+        mDatabase = SQLiteDatabase.openOrCreateDatabase(f,null);
         assertNotNull(mDatabase);
         mDatabase.setVersion(CURRENT_DATABASE_VERSION);
     }

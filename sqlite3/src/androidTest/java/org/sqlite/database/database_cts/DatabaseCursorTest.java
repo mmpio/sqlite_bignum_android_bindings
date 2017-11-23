@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.database.cts;
+package org.sqlite.database.database_cts;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -22,12 +22,12 @@ import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.CursorWrapper;
 import android.database.DataSetObserver;
-import android.database.DatabaseUtils;
-import android.database.sqlite.SQLiteCursor;
-import android.database.sqlite.SQLiteCursorDriver;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteQuery;
-import android.database.sqlite.SQLiteStatement;
+import org.sqlite.database.DatabaseUtils;
+import org.sqlite.database.sqlite.SQLiteCursor;
+import org.sqlite.database.sqlite.SQLiteCursorDriver;
+import org.sqlite.database.sqlite.SQLiteDatabase;
+import org.sqlite.database.sqlite.SQLiteQuery;
+import org.sqlite.database.sqlite.SQLiteStatement;
 import android.os.Looper;
 import android.test.AndroidTestCase;
 import android.test.PerformanceTestCase;
@@ -54,6 +54,7 @@ public class DatabaseCursorTest extends AndroidTestCase implements PerformanceTe
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        System.loadLibrary("sqliteX");
         File dbDir = getContext().getDir("tests", Context.MODE_PRIVATE);
         mDatabaseFile = new File(dbDir, "database_test.db");
         if (mDatabaseFile.exists()) {

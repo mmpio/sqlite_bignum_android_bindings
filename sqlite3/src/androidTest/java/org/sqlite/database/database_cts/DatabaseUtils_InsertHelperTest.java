@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package android.database.cts;
+package org.sqlite.database.database_cts;
 
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseUtils.InsertHelper;
-import android.database.sqlite.SQLiteDatabase;
+import org.sqlite.database.DatabaseUtils.InsertHelper;
+import org.sqlite.database.sqlite.SQLiteDatabase;
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
+
+import java.io.File;
 
 public class DatabaseUtils_InsertHelperTest extends AndroidTestCase {
     private static final String TEST_TABLE_NAME = "test";
@@ -35,8 +37,10 @@ public class DatabaseUtils_InsertHelperTest extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        System.loadLibrary("sqliteX");
         getContext().deleteDatabase(DATABASE_NAME);
-        mDatabase = getContext().openOrCreateDatabase(DATABASE_NAME, Context.MODE_PRIVATE, null);
+        File f = mContext.getDatabasePath(DATABASE_NAME);
+        mDatabase = SQLiteDatabase.openOrCreateDatabase(f, null);
         assertNotNull(mDatabase);
         mInsertHelper = new InsertHelper(mDatabase, TEST_TABLE_NAME);
     }

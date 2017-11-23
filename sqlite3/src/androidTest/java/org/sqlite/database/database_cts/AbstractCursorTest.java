@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.database.cts;
+package org.sqlite.database.database_cts;
 
 import android.content.Context;
 import android.database.AbstractCursor;
@@ -23,7 +23,7 @@ import android.database.ContentObserver;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.CursorWindow;
 import android.database.DataSetObserver;
-import android.database.sqlite.SQLiteDatabase;
+import org.sqlite.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -56,7 +56,7 @@ public class AbstractCursorTest extends InstrumentationTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-
+        System.loadLibrary("sqliteX");
         setupDatabase();
         ArrayList<ArrayList> list = createTestList(ROW_MAX, COLUMN_NAMES.length);
         mTestAbstractCursor = new TestAbstractCursor(COLUMN_NAMES, list);

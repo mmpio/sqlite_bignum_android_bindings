@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package android.database.sqlite.cts;
+package org.sqlite.database.sqlite_cts;
 
 
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteCursor;
-import android.database.sqlite.SQLiteCursorDriver;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteQuery;
-import android.database.sqlite.SQLiteQueryBuilder;
+import org.sqlite.database.sqlite.SQLiteCursor;
+import org.sqlite.database.sqlite.SQLiteCursorDriver;
+import org.sqlite.database.sqlite.SQLiteDatabase;
+import org.sqlite.database.sqlite.SQLiteQuery;
+import org.sqlite.database.sqlite.SQLiteQueryBuilder;
 import android.os.CancellationSignal;
 import android.os.OperationCanceledException;
 import android.test.AndroidTestCase;
@@ -31,6 +31,7 @@ import android.test.AndroidTestCase;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
+import java.io.File;
 
 public class SQLiteQueryBuilderTest extends AndroidTestCase {
     private SQLiteDatabase mDatabase;
@@ -41,9 +42,11 @@ public class SQLiteQueryBuilderTest extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-
-        getContext().deleteDatabase(DATABASE_FILE);
-        mDatabase = getContext().openOrCreateDatabase(DATABASE_FILE, Context.MODE_PRIVATE, null);
+        System.loadLibrary("sqliteX");
+        File f = mContext.getDatabasePath(DATABASE_FILE);
+        f.mkdirs();
+        if (f.exists()) { f.delete(); }
+        mDatabase = SQLiteDatabase.openOrCreateDatabase(f,null);
         assertNotNull(mDatabase);
     }
 

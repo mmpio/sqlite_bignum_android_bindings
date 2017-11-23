@@ -14,23 +14,25 @@
  * limitations under the License.
  */
 
-package android.database.sqlite.cts;
+package org.sqlite.database.sqlite_cts;
 
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDoneException;
-import android.database.sqlite.SQLiteStatement;
+import org.sqlite.database.DatabaseUtils;
+import org.sqlite.database.SQLException;
+import org.sqlite.database.sqlite.SQLiteDatabase;
+import org.sqlite.database.sqlite.SQLiteDoneException;
+import org.sqlite.database.sqlite.SQLiteStatement;
 import android.os.ParcelFileDescriptor;
+import android.support.test.filters.Suppress;
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.File;
 
 public class SQLiteStatementTest extends AndroidTestCase {
     private static final String STRING1 = "this is a test";
@@ -53,9 +55,12 @@ public class SQLiteStatementTest extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-
+        System.loadLibrary("sqliteX");
         getContext().deleteDatabase(DATABASE_NAME);
-        mDatabase = getContext().openOrCreateDatabase(DATABASE_NAME, Context.MODE_PRIVATE, null);
+        File f = mContext.getDatabasePath(DATABASE_NAME);
+        f.mkdirs();
+        if (f.exists()) { f.delete(); }
+        mDatabase = SQLiteDatabase.openOrCreateDatabase(f, null);
         assertNotNull(mDatabase);
         mDatabase.setVersion(CURRENT_DATABASE_VERSION);
     }
@@ -211,14 +216,17 @@ public class SQLiteStatementTest extends AndroidTestCase {
         statement.close();
     }
 
+    @Suppress
     public void testSimpleQueryForBlobFileDescriptorSuccessNormal() throws IOException {
         doTestSimpleQueryForBlobFileDescriptorSuccess(0);
     }
 
+    @Suppress
     public void testSimpleQueryForBlobFileDescriptorSuccessEmpty() throws IOException {
         doTestSimpleQueryForBlobFileDescriptorSuccess(1);
     }
 
+    @Suppress
     public void testSimpleQueryForBlobFileDescriptorSuccessNull() {
         populateBlobTable();
 
@@ -227,18 +235,22 @@ public class SQLiteStatementTest extends AndroidTestCase {
         assertNull(stm.simpleQueryForBlobFileDescriptor());
     }
 
+    @Suppress
     public void testSimpleQueryForBlobFileDescriptorSuccess00() throws IOException {
         doTestSimpleQueryForBlobFileDescriptorSuccess(3);
     }
 
+    @Suppress
     public void testSimpleQueryForBlobFileDescriptorSuccessFF() throws IOException {
         doTestSimpleQueryForBlobFileDescriptorSuccess(4);
     }
 
+    @Suppress
     public void testSimpleQueryForBlobFileDescriptorSuccessEmbeddedNul() throws IOException {
         doTestSimpleQueryForBlobFileDescriptorSuccess(5);
     }
 
+    @Suppress
     private void doTestSimpleQueryForBlobFileDescriptorSuccess(int i) throws IOException {
         populateBlobTable();
 
@@ -248,6 +260,7 @@ public class SQLiteStatementTest extends AndroidTestCase {
         assertFileDescriptorContent(BLOBS[i], fd);
     }
 
+    @Suppress
     public void testSimpleQueryForBlobFileDescriptorSuccessParam() throws IOException {
         populateBlobTable();
 

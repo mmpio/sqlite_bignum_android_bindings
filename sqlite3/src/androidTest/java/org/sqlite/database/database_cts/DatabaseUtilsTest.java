@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package android.database.cts;
+package org.sqlite.database.database_cts;
 
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
-import android.database.DatabaseUtils.InsertHelper;
-import android.database.sqlite.SQLiteAbortException;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDoneException;
-import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteStatement;
+import org.sqlite.database.DatabaseUtils;
+import org.sqlite.database.DatabaseUtils.InsertHelper;
+import org.sqlite.database.sqlite.SQLiteAbortException;
+import org.sqlite.database.sqlite.SQLiteDatabase;
+import org.sqlite.database.sqlite.SQLiteDoneException;
+import org.sqlite.database.sqlite.SQLiteException;
+import org.sqlite.database.sqlite.SQLiteStatement;
 import android.os.Parcel;
 import android.os.ParcelFileDescriptor;
 import android.test.AndroidTestCase;
@@ -53,6 +53,7 @@ public class DatabaseUtilsTest extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        System.loadLibrary("sqliteX");
         File dbDir = getContext().getDir("tests", Context.MODE_PRIVATE);
         mDatabaseFile = new File(dbDir, "database_test.db");
         if (mDatabaseFile.exists()) {
@@ -141,9 +142,12 @@ public class DatabaseUtilsTest extends AndroidTestCase {
         String dbName = "ExampleName";
         String sqls = "CREATE TABLE " + TABLE_NAME + " (_id INTEGER PRIMARY KEY, name TEXT);\n"
                 + "INSERT INTO " + TABLE_NAME + " (name) VALUES ('Mike');\n";
-        DatabaseUtils.createDbFromSqlStatements(getContext(), dbName, 1, sqls);
+        File f = mContext.getDatabasePath(dbName);
+        f.mkdirs();
+        f.delete();
+        DatabaseUtils.createDbFromSqlStatements(getContext(), f.toString(), 1, sqls);
+        SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(f,null);
 
-        SQLiteDatabase db = getContext().openOrCreateDatabase(dbName, 0, null);
         final String[] PROJECTION = new String[] {
             "_id",             // 0
             "name"             // 1
@@ -508,47 +512,47 @@ public class DatabaseUtilsTest extends AndroidTestCase {
         }
     }
 
-    public void testExceptionFromParcel() {
-        Parcel parcel = Parcel.obtain();
-        DatabaseUtils.writeExceptionToParcel(parcel, new IllegalArgumentException());
-        parcel.setDataPosition(0);
-        try {
-            DatabaseUtils.readExceptionFromParcel(parcel);
-            fail("should throw IllegalArgumentException.");
-        } catch (IllegalArgumentException e) {
-            // expected
-        }
-
-        parcel = Parcel.obtain();
-        DatabaseUtils.writeExceptionToParcel(parcel, new SQLiteAbortException());
-        parcel.setDataPosition(0);
-        try {
-            DatabaseUtils.readExceptionFromParcel(parcel);
-            fail("should throw SQLiteAbortException.");
-        } catch (SQLiteAbortException e) {
-            // expected
-        }
-
-        parcel = Parcel.obtain();
-        DatabaseUtils.writeExceptionToParcel(parcel, new FileNotFoundException());
-        parcel.setDataPosition(0);
-        try {
-            DatabaseUtils.readExceptionFromParcel(parcel);
-            fail("should throw RuntimeException.");
-        } catch (RuntimeException e) {
-            // expected
-        }
-
-        parcel = Parcel.obtain();
-        DatabaseUtils.writeExceptionToParcel(parcel, new FileNotFoundException());
-        parcel.setDataPosition(0);
-        try {
-            DatabaseUtils.readExceptionWithFileNotFoundExceptionFromParcel(parcel);
-            fail("should throw FileNotFoundException.");
-        } catch (FileNotFoundException e) {
-            // expected
-        }
-    }
+//    public void testExceptionFromParcel() {
+//        Parcel parcel = Parcel.obtain();
+//        DatabaseUtils.writeExceptionToParcel(parcel, new IllegalArgumentException());
+//        parcel.setDataPosition(0);
+//        try {
+//            DatabaseUtils.readExceptionFromParcel(parcel);
+//            fail("should throw IllegalArgumentException.");
+//        } catch (IllegalArgumentException e) {
+//            // expected
+//        }
+//
+//        parcel = Parcel.obtain();
+//        DatabaseUtils.writeExceptionToParcel(parcel, new SQLiteAbortException());
+//        parcel.setDataPosition(0);
+//        try {
+//            DatabaseUtils.readExceptionFromParcel(parcel);
+//            fail("should throw SQLiteAbortException.");
+//        } catch (SQLiteAbortException e) {
+//            // expected
+//        }
+//
+//        parcel = Parcel.obtain();
+//        DatabaseUtils.writeExceptionToParcel(parcel, new FileNotFoundException());
+//        parcel.setDataPosition(0);
+//        try {
+//            DatabaseUtils.readExceptionFromParcel(parcel);
+//            fail("should throw RuntimeException.");
+//        } catch (RuntimeException e) {
+//            // expected
+//        }
+//
+//        parcel = Parcel.obtain();
+//        DatabaseUtils.writeExceptionToParcel(parcel, new FileNotFoundException());
+//        parcel.setDataPosition(0);
+//        try {
+//            DatabaseUtils.readExceptionWithFileNotFoundExceptionFromParcel(parcel);
+//            fail("should throw FileNotFoundException.");
+//        } catch (FileNotFoundException e) {
+//            // expected
+//        }
+//    }
 
     public void testStringForQuery() {
         mDatabase.execSQL("INSERT INTO " + TABLE_NAME + " (name, age, address)" +
@@ -585,44 +589,44 @@ public class DatabaseUtilsTest extends AndroidTestCase {
         statement.close();
     }
 
-    public void testBlobFileDescriptorForQuery() throws Exception {
-        String data1 = "5300FEFF";
-        String data2 = "DECAFBAD";
-        mDatabase.execSQL("INSERT INTO blob_test (name, data) VALUES ('Mike', X'" + data1 + "')");
-
-        String query = "SELECT data FROM blob_test";
-        assertFileDescriptorContent(parseBlob(data1),
-                        DatabaseUtils.blobFileDescriptorForQuery(mDatabase, query, null));
-
-        mDatabase.execSQL("INSERT INTO blob_test (name, data) VALUES ('Jack', X'" + data2 + "');");
-        query = "SELECT data FROM blob_test WHERE name = ?";
-        String[] args = new String[] { "Jack" };
-        assertFileDescriptorContent(parseBlob(data2),
-                DatabaseUtils.blobFileDescriptorForQuery(mDatabase, query, args));
-
-        args = new String[] { "No such name" };
-        try {
-            DatabaseUtils.stringForQuery(mDatabase, query, args);
-            fail("should throw SQLiteDoneException");
-        } catch (SQLiteDoneException e) {
-            // expected
-        }
-
-        query = "SELECT data FROM blob_test WHERE name = ?;";
-        SQLiteStatement statement = mDatabase.compileStatement(query);
-        args = new String[] { "Mike" };
-        assertFileDescriptorContent(parseBlob(data1),
-                DatabaseUtils.blobFileDescriptorForQuery(statement, args));
-
-        args = new String[] { "No such name" };
-        try {
-            DatabaseUtils.blobFileDescriptorForQuery(statement, args);
-            fail("should throw SQLiteDoneException");
-        } catch (SQLiteDoneException e) {
-            // expected
-        }
-        statement.close();
-    }
+//    public void testBlobFileDescriptorForQuery() throws Exception {
+//        String data1 = "5300FEFF";
+//        String data2 = "DECAFBAD";
+//        mDatabase.execSQL("INSERT INTO blob_test (name, data) VALUES ('Mike', X'" + data1 + "')");
+//
+//        String query = "SELECT data FROM blob_test";
+//        assertFileDescriptorContent(parseBlob(data1),
+//                        DatabaseUtils.blobFileDescriptorForQuery(mDatabase, query, null));
+//
+//        mDatabase.execSQL("INSERT INTO blob_test (name, data) VALUES ('Jack', X'" + data2 + "');");
+//        query = "SELECT data FROM blob_test WHERE name = ?";
+//        String[] args = new String[] { "Jack" };
+//        assertFileDescriptorContent(parseBlob(data2),
+//                DatabaseUtils.blobFileDescriptorForQuery(mDatabase, query, args));
+//
+//        args = new String[] { "No such name" };
+//        try {
+//            DatabaseUtils.stringForQuery(mDatabase, query, args);
+//            fail("should throw SQLiteDoneException");
+//        } catch (SQLiteDoneException e) {
+//            // expected
+//        }
+//
+//        query = "SELECT data FROM blob_test WHERE name = ?;";
+//        SQLiteStatement statement = mDatabase.compileStatement(query);
+//        args = new String[] { "Mike" };
+//        assertFileDescriptorContent(parseBlob(data1),
+//                DatabaseUtils.blobFileDescriptorForQuery(statement, args));
+//
+//        args = new String[] { "No such name" };
+//        try {
+//            DatabaseUtils.blobFileDescriptorForQuery(statement, args);
+//            fail("should throw SQLiteDoneException");
+//        } catch (SQLiteDoneException e) {
+//            // expected
+//        }
+//        statement.close();
+//    }
 
     private static byte[] parseBlob(String src) {
         int len = src.length();

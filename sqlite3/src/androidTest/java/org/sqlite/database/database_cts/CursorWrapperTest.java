@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.database.cts;
+package org.sqlite.database.database_cts;
 
 
 import android.content.Context;
@@ -24,7 +24,7 @@ import android.database.Cursor;
 import android.database.CursorWrapper;
 import android.database.DataSetObserver;
 import android.database.StaleDataException;
-import android.database.sqlite.SQLiteDatabase;
+import org.sqlite.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.test.AndroidTestCase;
@@ -54,6 +54,7 @@ public class CursorWrapperTest extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        System.loadLibrary("sqliteX");
         setupDatabase();
     }
 

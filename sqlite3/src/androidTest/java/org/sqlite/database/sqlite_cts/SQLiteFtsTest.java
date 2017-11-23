@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package android.database.sqlite.cts;
+package org.sqlite.database.sqlite_cts;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import org.sqlite.database.sqlite.SQLiteDatabase;
 import android.test.AndroidTestCase;
 
 import java.io.File;
@@ -43,7 +43,11 @@ public class SQLiteFtsTest extends AndroidTestCase {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        mDatabase = getContext().openOrCreateDatabase("CTS_FTS", Context.MODE_PRIVATE, null);
+        System.loadLibrary("sqliteX");
+        File f = mContext.getDatabasePath("CTS_FTS");
+        f.mkdirs();
+        if (f.exists()) { f.delete(); }
+        mDatabase = SQLiteDatabase.openOrCreateDatabase(f,null);
     }
 
     @Override
