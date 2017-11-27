@@ -25,8 +25,7 @@ import org.sqlite.database.sqlite.CloseGuard;
 
 import android.database.Cursor;
 import android.database.CursorWindow;
-import android.database.DatabaseUtils;
-import org.sqlite.database.ExtraUtils;
+import org.sqlite.database.DatabaseUtils;
 import org.sqlite.database.sqlite.SQLiteDebug.DbStats;
 import android.os.CancellationSignal;
 import android.os.OperationCanceledException;
@@ -1004,7 +1003,7 @@ public final class SQLiteConnection implements CancellationSignal.OnCancelListen
         final long statementPtr = statement.mStatementPtr;
         for (int i = 0; i < count; i++) {
             final Object arg = bindArgs[i];
-            switch (ExtraUtils.getTypeOfObject(arg)) {
+            switch (DatabaseUtils.getTypeOfObject(arg)) {
                 case Cursor.FIELD_TYPE_NULL:
                     nativeBindNull(mConnectionPtr, statementPtr, i + 1);
                     break;

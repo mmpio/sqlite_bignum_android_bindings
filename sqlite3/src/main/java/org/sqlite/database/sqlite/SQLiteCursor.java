@@ -20,7 +20,7 @@
 
 package org.sqlite.database.sqlite;
 
-import org.sqlite.database.ExtraUtils;
+import org.sqlite.database.DatabaseUtils;
 
 import android.database.AbstractWindowedCursor;
 import android.database.CursorWindow;
@@ -164,14 +164,14 @@ public class SQLiteCursor extends AbstractWindowedCursor {
 
         try {
             if (mCount == NO_COUNT) {
-                int startPos = ExtraUtils.cursorPickFillWindowStartPosition(requiredPos, 0);
+                int startPos = DatabaseUtils.cursorPickFillWindowStartPosition(requiredPos, 0);
                 mCount = mQuery.fillWindow(mWindow, startPos, requiredPos, true);
                 mCursorWindowCapacity = mWindow.getNumRows();
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "received count(*) from native_fill_window: " + mCount);
                 }
             } else {
-                int startPos = ExtraUtils.cursorPickFillWindowStartPosition(requiredPos,
+                int startPos = DatabaseUtils.cursorPickFillWindowStartPosition(requiredPos,
                         mCursorWindowCapacity);
                 mQuery.fillWindow(mWindow, startPos, requiredPos, false);
             }

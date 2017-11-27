@@ -23,8 +23,7 @@ package org.sqlite.database.sqlite;
 import android.content.ContentValues;
 import android.database.Cursor;
 import org.sqlite.database.DatabaseErrorHandler;
-import android.database.DatabaseUtils;
-import org.sqlite.database.ExtraUtils;
+import org.sqlite.database.DatabaseUtils;
 import org.sqlite.database.DefaultDatabaseErrorHandler;
 import org.sqlite.database.SQLException;
 import org.sqlite.database.sqlite.SQLiteDebug.DbStats;
@@ -864,7 +863,7 @@ public final class SQLiteDatabase extends SQLiteClosable {
      * @return the database version
      */
     public int getVersion() {
-        return ((Long) ExtraUtils.longForQuery(this, "PRAGMA user_version;", null)).intValue();
+        return ((Long) DatabaseUtils.longForQuery(this, "PRAGMA user_version;", null)).intValue();
     }
 
     /**
@@ -882,7 +881,7 @@ public final class SQLiteDatabase extends SQLiteClosable {
      * @return the new maximum database size
      */
     public long getMaximumSize() {
-        long pageCount = ExtraUtils.longForQuery(this, "PRAGMA max_page_count;", null);
+        long pageCount = DatabaseUtils.longForQuery(this, "PRAGMA max_page_count;", null);
         return pageCount * getPageSize();
     }
 
@@ -900,7 +899,7 @@ public final class SQLiteDatabase extends SQLiteClosable {
         if ((numBytes % pageSize) != 0) {
             numPages++;
         }
-        long newPageCount = ExtraUtils.longForQuery(this, "PRAGMA max_page_count = " + numPages,
+        long newPageCount = DatabaseUtils.longForQuery(this, "PRAGMA max_page_count = " + numPages,
                 null);
         return newPageCount * pageSize;
     }
@@ -911,7 +910,7 @@ public final class SQLiteDatabase extends SQLiteClosable {
      * @return the database page size, in bytes
      */
     public long getPageSize() {
-        return ExtraUtils.longForQuery(this, "PRAGMA page_size;", null);
+        return DatabaseUtils.longForQuery(this, "PRAGMA page_size;", null);
     }
 
     /**
