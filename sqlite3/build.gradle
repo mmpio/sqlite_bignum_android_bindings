@@ -41,3 +41,11 @@ dependencies {
     androidTestCompile 'com.android.support.test:rules:0.5'
     testCompile 'junit:junit:4.12'
 }
+
+allprojects {
+    repositories {
+        // The order in which you list these repositories matter.
+        google()
+        jcenter()
+    }
+}
