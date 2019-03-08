@@ -3,9 +3,8 @@ package org.sqlite.database;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
-import android.util.Log;
+import androidx.test.InstrumentationRegistry;
+import androidx.test.runner.AndroidJUnit4;
 
 import junit.framework.Assert;
 
@@ -20,8 +19,6 @@ import org.sqlite.database.sqlite.SQLiteOpenHelper;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Arrays;
-
-import static org.junit.Assert.*;
 
 
 class MyHelper extends SQLiteOpenHelper {

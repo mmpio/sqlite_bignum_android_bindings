@@ -18,7 +18,6 @@ package org.sqlite.database.sqlite_cts;
 
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import org.sqlite.database.DatabaseUtils;
 import org.sqlite.database.SQLException;
@@ -26,7 +25,7 @@ import org.sqlite.database.sqlite.SQLiteDatabase;
 import org.sqlite.database.sqlite.SQLiteDoneException;
 import org.sqlite.database.sqlite.SQLiteStatement;
 import android.os.ParcelFileDescriptor;
-import android.support.test.filters.Suppress;
+import androidx.test.filters.Suppress;
 import android.test.AndroidTestCase;
 import android.test.MoreAsserts;
 
