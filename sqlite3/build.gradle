@@ -9,28 +9,33 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        externalNativeBuild {
+            cmake {
+                abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+                arguments "-DCMAKE_VERBOSE_MAKEFILE=ON"
+            }
+        }
     }
 
     buildTypes {
         release {
             minifyEnabled false
+            debuggable false
+            jniDebuggable false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
             minifyEnabled false
             debuggable true
             jniDebuggable true
-            ndk {
-                // Building with NDK_DEBUG=1 for mips crashes the compiler in ndk 14.
-                abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
-            }
         }
     }
 
-    //sourceSets.main.jni.srcDirs = [] //disable automatic ndk-build call
+    sourceSets.main.jni.srcDirs = [] //disable automatic ndk-build call
+
     externalNativeBuild {
-        ndkBuild {
-            path 'src/main/jni/Android.mk'
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
         }
     }
 }

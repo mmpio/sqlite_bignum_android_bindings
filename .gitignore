@@ -27,3 +27,5 @@ proguard/
 .project
 #doxygen
 doxygen/
+
+gmp/
