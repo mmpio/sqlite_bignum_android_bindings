@@ -1,7 +1,7 @@
 # sqlite_bignum_android_bindings
 SQLite Android bindings with support for BigNum functions
 This repo is a clone from the SQLite_android_bindings.
-The underlying sqliteX.so library is link to GMP library
+The underlying sqliteX.so library is linked to GMP library
 in order to compute big numbers.
 
 Five bignum handling functions have been added :
