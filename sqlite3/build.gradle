@@ -1,4 +1,8 @@
-apply plugin: 'com.android.library'
+plugins {
+    id "com.android.library"
+    id "com.jfrog.artifactory"
+    id 'maven-publish'
+}
 
 android {
     compileSdkVersion 28
@@ -12,7 +16,7 @@ android {
         externalNativeBuild {
             cmake {
                 abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
-                arguments "-DCMAKE_VERBOSE_MAKEFILE=ON"
+                arguments "-DANDROID_STL=c++_shared"
             }
         }
     }
@@ -42,7 +46,7 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    androidTestImplementation 'androidx.annotation:annotation:1.1.0-alpha01'
+    androidTestImplementation 'androidx.annotation:annotation:1.1.0-alpha02'
     androidTestImplementation 'androidx.test:runner:1.1.2-alpha02'
     androidTestImplementation 'androidx.test:rules:1.1.2-alpha02'
     testImplementation 'junit:junit:4.12'
@@ -53,5 +57,43 @@ allprojects {
         // The order in which you list these repositories matter.
         google()
         jcenter()
+    }
+}
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+def artifactory_username = properties.getProperty("artifactory_username") ?: ""
+def artifactory_password = properties.getProperty("artifactory_password") ?: ""
+def artifactory_url = properties.getProperty("artifactory_url") ?: ""
+
+def libraryGroupId = 'com.b16b00b5.sqlite'
+def libArtifactId = 'sqlite-biginteger-android-bindings'
+version = '0.1.12'
+
+publishing {
+    publications {
+        aar(MavenPublication) {
+            groupId libraryGroupId
+            version version
+            artifactId libArtifactId
+            artifact("$buildDir/outputs/aar/sqlite3-debug.aar")
+        }
+    }
+}
+
+artifactory {
+    contextUrl = artifactory_url
+    publish {
+        repository {
+            repoKey = 'gradle-dev-local'
+            username = artifactory_username
+            password = artifactory_password
+        }
+        defaults {
+            publications('aar')
+            publishArtifacts = true
+            properties = ['qa.level': 'basic', 'q.os': 'android', 'dev.team': 'core']
+            publishPom = true
+        }
     }
 }
