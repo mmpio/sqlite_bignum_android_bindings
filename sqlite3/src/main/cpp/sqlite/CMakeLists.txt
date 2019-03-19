@@ -1,4 +1,4 @@
-project(sqlite3)
+project(sqliteX)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 add_definitions(
         -DHAVE_USLEEP=1
@@ -26,7 +26,7 @@ else ()
     add_definitions(-DPACKED="")
 endif ()
 
-add_library(sqlite
+add_library(sqliteX
         SHARED
         android_database_SQLiteCommon.cpp
         android_database_SQLiteConnection.cpp
@@ -36,11 +36,11 @@ add_library(sqlite
         JniConstants.cpp
         sqlite3.c
         )
-target_include_directories(sqlite PUBLIC nativehelper/)
+target_include_directories(sqliteX PUBLIC nativehelper/)
 
 find_library(log-lib log)
 find_library(dl-lib dl)
 
-target_link_libraries(sqlite ${log-lib})
-target_link_libraries(sqlite ${dl-lib})
-target_link_libraries(sqlite gmp)
+target_link_libraries(sqliteX ${log-lib})
+target_link_libraries(sqliteX ${dl-lib})
+target_link_libraries(sqliteX gmp)

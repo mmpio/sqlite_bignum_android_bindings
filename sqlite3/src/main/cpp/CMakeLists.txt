@@ -19,12 +19,7 @@ string(REPLACE ";" " " EXT_LDFLAGS "${EXT_LDFLAGS}")
 include(ProcessorCount)
 ProcessorCount(nproc)
 include(ExternalProject)
-message("-----------------------------------------------------------------------------------------")
-message(${nproc})
-message(${EXT_COMPILER})
-message(${EXT_CFLAGS})
-message(${CMAKE_CURRENT_BINARY_DIR}/gmp_ext-prefix/src/gmp_ext-build)
-message("-----------------------------------------------------------------------------------------")
+
 ExternalProject_add(
         gmp_ext
         BUILD_BYPRODUCTS ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libgmp.so
@@ -49,5 +44,4 @@ set_target_properties(gmp
         PROPERTIES IMPORTED_LOCATION
         ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libgmp.so)
 add_subdirectory(sqlite)
-#add_dependencies(sqlite gmp)
-target_include_directories(sqlite PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/gmp_ext-prefix/src/gmp_ext-build)
+target_include_directories(sqliteX PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/gmp_ext-prefix/src/gmp_ext-build)
