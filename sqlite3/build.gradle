@@ -68,7 +68,7 @@ def artifactory_url = properties.getProperty("artifactory_url") ?: ""
 
 def libraryGroupId = 'com.b16b00b5.sqlite'
 def libArtifactId = 'sqlite-biginteger-android-bindings'
-version = '0.1.12'
+version = '0.1.13'
 
 publishing {
     publications {
